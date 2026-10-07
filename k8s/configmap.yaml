@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wordpress-config
+  namespace: my-ns
+data:
+  # Backend config
+  MYSQL_DATABASE: "wordpress"
