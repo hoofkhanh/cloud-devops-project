@@ -1,43 +1,46 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: wordpress-deployment
+  name: app-deployment
   namespace: my-ns
   labels:
-    app: wordpress
+    app: app
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: wordpress
+      app: app
   template:
     metadata:
       labels:
-        app: wordpress
+        app: app
     spec:
       containers:
-        - name: wordpress
-          image: wordpress:latest
+        - name: app
+          image: app:v1
+          imagePullPolicy: Never
           ports:
-            - containerPort: 80
+            - containerPort: 8080
           env:
-            - name: WORDPRESS_DB_HOST
-              value: wordpress-db-service
-            - name: WORDPRESS_DB_NAME
+            - name: DB_HOST
+              value: app-db-service
+            - name: DB_NAME
               valueFrom:
                 configMapKeyRef:
-                  name: wordpress-config
+                  name: app-config
                   key: MYSQL_DATABASE
-            - name: WORDPRESS_DB_USER
+            - name: DB_USER
               valueFrom:
                 secretKeyRef:
-                  name: wordpress-secret
+                  name: app-secret
                   key: MYSQL_USER
-            - name: WORDPRESS_DB_PASSWORD
+            - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: wordpress-secret
+                  name: app-secret
                   key: MYSQL_PASSWORD
+            - name: DB_PORT
+              value: "3306"
           resources:
             requests:
               cpu: "250m"
@@ -48,13 +51,13 @@ spec:
           readinessProbe:
             httpGet:
               path: /
-              port: 80
+              port: 8080
             initialDelaySeconds: 30
             periodSeconds: 10
           livenessProbe:
             httpGet:
               path: /
-              port: 80
+              port: 8080
             initialDelaySeconds: 60
             periodSeconds: 20
 ---
@@ -62,20 +65,20 @@ spec:
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: wordpress-db-statefulset
+  name: app-db-statefulset
   namespace: my-ns
   labels:
-    db: wordpress
+    db: app
 spec:
-  serviceName: wordpress-db-service
+  serviceName: app-db-service
   replicas: 1
   selector:
     matchLabels:
-      db: wordpress
+      db: app
   template:
     metadata:
       labels:
-        db: wordpress
+        db: app
     spec:
       containers:
         - name: mysql
@@ -86,22 +89,22 @@ spec:
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: wordpress-secret
+                  name: app-secret
                   key: MYSQL_ROOT_PASSWORD
             - name: MYSQL_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: wordpress-secret
+                  name: app-secret
                   key: MYSQL_PASSWORD
             - name: MYSQL_USER
               valueFrom:
                 secretKeyRef:
-                  name: wordpress-secret
+                  name: app-secret
                   key: MYSQL_USER
             - name: MYSQL_DATABASE
               valueFrom:
                 configMapKeyRef:
-                  name: wordpress-config
+                  name: app-config
                   key: MYSQL_DATABASE
           volumeMounts:
             - name: data

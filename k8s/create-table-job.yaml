@@ -1,0 +1,58 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mysql-init
+  namespace: my-ns
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+
+      containers:
+        - name: mysql-init
+          image: mysql:8.0
+
+          env:
+            - name: MYSQL_HOST
+              value: app-db-service
+
+            - name: MYSQL_PORT
+              value: "3306"
+
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: MYSQL_USER
+
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: MYSQL_PASSWORD
+
+            - name: MYSQL_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: MYSQL_DATABASE
+
+          command:
+            - /bin/sh
+            - -c
+            - |
+              mysql -h "$MYSQL_HOST" \
+                    -P "$MYSQL_PORT" \
+                    -u"$MYSQL_USER" \
+                    -p"$MYSQL_PASSWORD" \
+                    "$MYSQL_DATABASE" <<'EOF'
+
+              CREATE TABLE IF NOT EXISTS users (
+                  id INT AUTO_INCREMENT PRIMARY KEY,
+                  name VARCHAR(100) NOT NULL
+              );
+
+              INSERT INTO users (name)
+              VALUES ('Khanh');
+
+              EOF
