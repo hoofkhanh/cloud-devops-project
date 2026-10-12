@@ -17,13 +17,13 @@ spec:
     spec:
       containers:
         - name: app
-          image: app:v1
-          imagePullPolicy: Never
+          image: us-central1-docker.pkg.dev/devops-project-510903/my-repo/app:v1
+          #imagePullPolicy: Never
           ports:
             - containerPort: 8080
           env:
             - name: DB_HOST
-              value: app-db-service
+              value: 34.136.210.83
             - name: DB_NAME
               valueFrom:
                 configMapKeyRef:
@@ -43,7 +43,7 @@ spec:
               value: "3306"
           resources:
             requests:
-              cpu: "250m"
+              cpu: "90m"
               memory: "256Mi"
             limits:
               cpu: "500m"
@@ -60,85 +60,85 @@ spec:
               port: 8080
             initialDelaySeconds: 60
             periodSeconds: 20
----
+# ---
 # this is a dummy db that simulate db locally
-apiVersion: apps/v1
-kind: StatefulSet
-metadata:
-  name: app-db-statefulset
-  namespace: my-ns
-  labels:
-    db: app
-spec:
-  serviceName: app-db-service
-  replicas: 1
-  selector:
-    matchLabels:
-      db: app
-  template:
-    metadata:
-      labels:
-        db: app
-    spec:
-      containers:
-        - name: mysql
-          image: mysql:8.0
-          ports:
-            - containerPort: 3306
-          env:
-            - name: MYSQL_ROOT_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: app-secret
-                  key: MYSQL_ROOT_PASSWORD
-            - name: MYSQL_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: app-secret
-                  key: MYSQL_PASSWORD
-            - name: MYSQL_USER
-              valueFrom:
-                secretKeyRef:
-                  name: app-secret
-                  key: MYSQL_USER
-            - name: MYSQL_DATABASE
-              valueFrom:
-                configMapKeyRef:
-                  name: app-config
-                  key: MYSQL_DATABASE
-          volumeMounts:
-            - name: data
-              mountPath: /var/lib/mysql
-          resources:
-            requests:
-              cpu: 250m
-              memory: 512Mi
-            limits:
-              cpu: 1000m
-              memory: 1Gi
-          readinessProbe:
-            exec:
-              command:
-                - sh
-                - -c
-                - mysqladmin ping -h 127.0.0.1 -u root -p"$MYSQL_ROOT_PASSWORD"
-            initialDelaySeconds: 10
-            periodSeconds: 10
-          livenessProbe:
-            exec:
-              command:
-                - sh
-                - -c
-                - mysqladmin ping -h 127.0.0.1 -u root -p"$MYSQL_ROOT_PASSWORD"
-            initialDelaySeconds: 30
-            periodSeconds: 20
-  volumeClaimTemplates:
-    - metadata:
-        name: data
-      spec:
-        accessModes:
-          - ReadWriteOnce
-        storageClassName: standard
-        resources:
-          requests:
-            storage: 10Gi
+# apiVersion: apps/v1
+# kind: StatefulSet
+# metadata:
+#   name: app-db-statefulset
+#   namespace: my-ns
+#   labels:
+#     db: app
+# spec:
+#   serviceName: app-db-service
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       db: app
+#   template:
+#     metadata:
+#       labels:
+#         db: app
+#     spec:
+#       containers:
+#         - name: mysql
+#           image: mysql:8.0
+#           ports:
+#             - containerPort: 3306
+#           env:
+#             - name: MYSQL_ROOT_PASSWORD
+#               valueFrom:
+#                 secretKeyRef:
+#                   name: app-secret
+#                   key: MYSQL_ROOT_PASSWORD
+#             - name: MYSQL_PASSWORD
+#               valueFrom:
+#                 secretKeyRef:
+#                   name: app-secret
+#                   key: MYSQL_PASSWORD
+#             - name: MYSQL_USER
+#               valueFrom:
+#                 secretKeyRef:
+#                   name: app-secret
+#                   key: MYSQL_USER
+#             - name: MYSQL_DATABASE
+#               valueFrom:
+#                 configMapKeyRef:
+#                   name: app-config
+#                   key: MYSQL_DATABASE
+#           volumeMounts:
+#             - name: data
+#               mountPath: /var/lib/mysql
+#           resources:
+#             requests:
+#               cpu: 250m
+#               memory: 512Mi
+#             limits:
+#               cpu: 1000m
+#               memory: 1Gi
+#           readinessProbe:
+#             exec:
+#               command:
+#                 - sh
+#                 - -c
+#                 - mysqladmin ping -h 127.0.0.1 -u root -p"$MYSQL_ROOT_PASSWORD"
+#             initialDelaySeconds: 10
+#             periodSeconds: 10
+#           livenessProbe:
+#             exec:
+#               command:
+#                 - sh
+#                 - -c
+#                 - mysqladmin ping -h 127.0.0.1 -u root -p"$MYSQL_ROOT_PASSWORD"
+#             initialDelaySeconds: 30
+#             periodSeconds: 20
+#   volumeClaimTemplates:
+#     - metadata:
+#         name: data
+#       spec:
+#         accessModes:
+#           - ReadWriteOnce
+#         storageClassName: standard
+#         resources:
+#           requests:
+#             storage: 10Gi

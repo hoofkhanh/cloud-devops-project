@@ -14,7 +14,7 @@ spec:
 
           env:
             - name: MYSQL_HOST
-              value: app-db-service
+              value: 34.136.210.83
 
             - name: MYSQL_PORT
               value: "3306"
@@ -31,6 +31,14 @@ spec:
                   name: app-secret
                   key: MYSQL_PASSWORD
 
+
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: MYSQL_ROOT_PASSWORD
+
+
             - name: MYSQL_DATABASE
               valueFrom:
                 configMapKeyRef:
@@ -41,10 +49,17 @@ spec:
             - /bin/sh
             - -c
             - |
+
               mysql -h "$MYSQL_HOST" \
                     -P "$MYSQL_PORT" \
-                    -u"$MYSQL_USER" \
-                    -p"$MYSQL_PASSWORD" \
+                    -u root \
+                    -p"$MYSQL_ROOT_PASSWORD" \
+                    -e "CREATE DATABASE IF NOT EXISTS \`$MYSQL_DATABASE\`;"
+
+              mysql -h "$MYSQL_HOST" \
+                    -P "$MYSQL_PORT" \
+                    -u root \
+                    -p"$MYSQL_ROOT_PASSWORD" \
                     "$MYSQL_DATABASE" <<'EOF'
 
               CREATE TABLE IF NOT EXISTS users (
@@ -53,6 +68,10 @@ spec:
               );
 
               INSERT INTO users (name)
-              VALUES ('Khanh');
-
+              SELECT 'Khanh'
+              WHERE NOT EXISTS (
+                SELECT 1
+                FROM users
+                WHERE name = 'Khanh'
+              )
               EOF
