@@ -6,15 +6,15 @@ metadata:
 spec:
   template:
     spec:
+      serviceAccountName: app-ksa
       restartPolicy: OnFailure
-
       containers:
         - name: mysql-init
           image: mysql:8.0
 
           env:
             - name: MYSQL_HOST
-              value: 34.136.210.83
+              value: 127.0.0.1
 
             - name: MYSQL_PORT
               value: "3306"
@@ -75,3 +75,29 @@ spec:
                 WHERE name = 'Khanh'
               )
               EOF
+        # Cloud SQL Auth Proxy sidecar
+        - name: cloud-sql-proxy
+          image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2
+          env:
+            - name: PROJECT_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: PROJECT_ID
+            - name: CLOUD_SQL_INSTANCE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: CLOUD_SQL_INSTANCE_NAME
+          resources:
+            requests:
+              cpu: 10m
+              memory: 24Mi
+            limits:
+              cpu: 20m
+              memory: 40Mi
+          args:
+            - "--private-ip"
+            - "--address=127.0.0.1"
+            - "--port=3306"
+            - "$(PROJECT_ID):us-central1:$(CLOUD_SQL_INSTANCE_NAME)"

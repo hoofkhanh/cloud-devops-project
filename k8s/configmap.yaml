@@ -6,3 +6,5 @@ metadata:
 data:
   # Backend config
   MYSQL_DATABASE: "app"
+  PROJECT_ID: "devops-project-510903"
+  CLOUD_SQL_INSTANCE_NAME: "my-sql-instance"

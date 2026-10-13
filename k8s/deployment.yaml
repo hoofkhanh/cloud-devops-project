@@ -15,6 +15,7 @@ spec:
       labels:
         app: app
     spec:
+      serviceAccountName: app-ksa
       containers:
         - name: app
           image: us-central1-docker.pkg.dev/devops-project-510903/my-repo/app:v1
@@ -23,7 +24,7 @@ spec:
             - containerPort: 8080
           env:
             - name: DB_HOST
-              value: 34.136.210.83
+              value: "127.0.0.1"
             - name: DB_NAME
               valueFrom:
                 configMapKeyRef:
@@ -43,11 +44,11 @@ spec:
               value: "3306"
           resources:
             requests:
-              cpu: "90m"
-              memory: "256Mi"
+              cpu: "10m"
+              memory: "50Mi"
             limits:
-              cpu: "500m"
-              memory: "512Mi"
+              cpu: "20m"
+              memory: "100Mi"
           readinessProbe:
             httpGet:
               path: /
@@ -60,6 +61,33 @@ spec:
               port: 8080
             initialDelaySeconds: 60
             periodSeconds: 20
+       
+        # Cloud SQL Auth Proxy sidecar
+        - name: cloud-sql-proxy
+          image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2
+          env:
+            - name: PROJECT_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: PROJECT_ID
+            - name: CLOUD_SQL_INSTANCE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: CLOUD_SQL_INSTANCE_NAME
+          resources:
+            requests:
+              cpu: 10m
+              memory: 24Mi
+            limits:
+              cpu: 20m
+              memory: 40Mi
+          args:
+            - "--private-ip"
+            - "--address=127.0.0.1"
+            - "--port=3306"
+            - "$(PROJECT_ID):us-central1:$(CLOUD_SQL_INSTANCE_NAME)"
 # ---
 # this is a dummy db that simulate db locally
 # apiVersion: apps/v1
