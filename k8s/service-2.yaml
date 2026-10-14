@@ -6,7 +6,7 @@ metadata:
   labels:
     app: app-2
 spec:
-    type: LoadBalancer
+    type: ClusterIP
     selector:
       app: app-2
     ports:
