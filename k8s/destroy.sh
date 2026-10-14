@@ -5,8 +5,12 @@ set -e
 export PROJECT_ID="devops-project-510903"
 export GSA_EMAIL="cloudsql-client"
 
-kubectl delete -f deployment.yaml --ignore-not-found
-kubectl delete -f service.yaml --ignore-not-found
+kubectl delete -f gateway.yaml
+kubectl delete -f http-route.yaml
+kubectl delete -f deployment-1.yaml --ignore-not-found
+kubectl delete -f service-1.yaml --ignore-not-found
+kubectl delete -f deployment-2.yaml --ignore-not-found
+kubectl delete -f service-2.yaml --ignore-not-found
 kubectl delete -f create-table-job.yaml --ignore-not-found
 kubectl delete -f secret.yaml --ignore-not-found
 kubectl delete -f configmap.yaml --ignore-not-found

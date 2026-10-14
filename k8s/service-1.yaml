@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: app-service
+  name: app-1-service
   namespace: my-ns
   labels:
-    app: app
+    app: app-1
 spec:
     type: LoadBalancer
     selector:
-      app: app
+      app: app-1
     ports:
       - protocol: TCP
         port: 80

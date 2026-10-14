@@ -1,24 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: app-deployment
+  name: app-2-deployment
   namespace: my-ns
   labels:
-    app: app
+    app: app-2
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: app
+      app: app-2
   template:
     metadata:
       labels:
-        app: app
+        app: app-2
     spec:
       serviceAccountName: app-ksa
       containers:
-        - name: app
-          image: us-central1-docker.pkg.dev/devops-project-510903/my-repo/app:v1
+        - name: app-2
+          image: us-central1-docker.pkg.dev/devops-project-510903/my-repo/app:v2
           #imagePullPolicy: Never
           ports:
             - containerPort: 8080

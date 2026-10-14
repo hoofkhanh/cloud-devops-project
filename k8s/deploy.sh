@@ -18,5 +18,9 @@ kubectl wait --for=condition=complete "job/$JOB" \
 kubectl delete job mysql-init -n my-ns
 echo "Xong r"
 
-kubectl apply -f service.yaml
-kubectl apply -f deployment.yaml
+kubectl apply -f service-1.yaml
+kubectl apply -f service-2.yaml
+kubectl apply -f deployment-1.yaml
+kubectl apply -f deployment-2.yaml
+kubectl apply -f gateway.yaml
+kubectl apply -f http-route.yaml

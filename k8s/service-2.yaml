@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-2-service
+  namespace: my-ns
+  labels:
+    app: app-2
+spec:
+    type: LoadBalancer
+    selector:
+      app: app-2
+    ports:
+      - protocol: TCP
+        port: 80
+        targetPort: 8080
+# ---
+# this is a dummy service that simulate service locally
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: app-db-service
+#   namespace: my-ns
+#   labels:
+#     db: app
+# spec:
+#     clusterIP: None
+#     selector:
+#       db: app
+#     ports:
+#       - protocol: TCP
+#         port: 3306
+#         targetPort: 3306
