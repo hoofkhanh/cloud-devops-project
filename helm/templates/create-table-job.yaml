@@ -1,0 +1,105 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "myapp.fullname" . }}-mysql-init
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "myapp.labels" . | nindent 4 }}
+spec:
+  template:
+    spec:
+      serviceAccountName: {{ .Values.serviceAccount }}
+      restartPolicy: OnFailure
+      containers:
+        - name: mysql-init
+          image: "{{ .Values.containers.create-table-job.image }}:{{ .Values.containers.create-table-job.version }}"
+
+          env:
+            - name: MYSQL_HOST
+              value: 127.0.0.1
+
+            - name: MYSQL_PORT
+              value: "3306"
+
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "myapp.fullname" . }}-app-secret
+                  key: MYSQL_USER
+
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "myapp.fullname" . }}-app-secret
+                  key: MYSQL_PASSWORD
+
+
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "myapp.fullname" . }}-app-secret
+                  key: MYSQL_ROOT_PASSWORD
+
+
+            - name: MYSQL_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "myapp.fullname" . }}-app-config
+                  key: MYSQL_DATABASE
+
+          command:
+            - /bin/sh
+            - -c
+            - |
+
+              mysql -h "$MYSQL_HOST" \
+                    -P "$MYSQL_PORT" \
+                    -u root \
+                    -p"$MYSQL_ROOT_PASSWORD" \
+                    -e "CREATE DATABASE IF NOT EXISTS \`$MYSQL_DATABASE\`;"
+
+              mysql -h "$MYSQL_HOST" \
+                    -P "$MYSQL_PORT" \
+                    -u root \
+                    -p"$MYSQL_ROOT_PASSWORD" \
+                    "$MYSQL_DATABASE" <<'EOF'
+
+              CREATE TABLE IF NOT EXISTS users (
+                  id INT AUTO_INCREMENT PRIMARY KEY,
+                  name VARCHAR(100) NOT NULL
+              );
+
+              INSERT INTO users (name)
+              SELECT 'Khanh'
+              WHERE NOT EXISTS (
+                SELECT 1
+                FROM users
+                WHERE name = 'Khanh'
+              )
+              EOF
+        # Cloud SQL Auth Proxy sidecar
+        - name: cloud-sql-proxy
+          image: "{{ .Values.containers.cloud-sql-proxy.image }}:{{ .Values.containers.cloud-sql-proxy.version }}"
+          env:
+            - name: PROJECT_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "myapp.fullname" . }}-app-config
+                  key: PROJECT_ID
+            - name: CLOUD_SQL_INSTANCE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "myapp.fullname" . }}-app-config
+                  key: CLOUD_SQL_INSTANCE_NAME
+          resources:
+            requests:
+              cpu: {{ .Values.containers.cloud-sql-proxy.requests-cpu}}
+              memory: {{ .Values.containers.cloud-sql-proxy.requests-memory}}
+            limits:
+              cpu: {{ .Values.containers.cloud-sql-proxy.limits-cpu}}
+              memory: {{ .Values.containers.cloud-sql-proxy.limits-memory}}
+          args:
+            - "--private-ip"
+            - "--address=127.0.0.1"
+            - "--port=3306"
+            - "$(PROJECT_ID):us-central1:$(CLOUD_SQL_INSTANCE_NAME)"

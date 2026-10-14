@@ -1,0 +1,175 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "myapp.fullname" . }}-app-1-deployment
+  namespace: {{ .Values.namespace}}
+  labels:
+    app: app-1
+    {{- include "myapp.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.containers.app-1.replicas }}
+  selector:
+    matchLabels:
+      app: app-1
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: app-1
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      serviceAccountName: {{ .Values.serviceAccount}}
+      containers:
+        - name: app-1
+          image: image: "{{ .Values.containers.app-1.image }}:{{ .Values.containers.app-1.version }}"
+          #imagePullPolicy: Never
+          ports:
+            - containerPort: {{ .Values.containers.app-1.ports }}
+          env:
+            - name: DB_HOST
+              value: "127.0.0.1"
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "myapp.fullname" . }}-app-config
+                  key: MYSQL_DATABASE
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "myapp.fullname" . }}-app-secret
+                  key: MYSQL_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "myapp.fullname" . }}-app-secret
+                  key: MYSQL_PASSWORD
+            - name: DB_PORT
+              value: "3306"
+          resources:
+            requests:
+              cpu: {{ .Values.containers.app-1.requests-cpu}}
+              memory: {{ .Values.containers.app-1.requests-memory}}
+            limits:
+              cpu: {{ .Values.containers.app-1.limits-cpu}}
+              memory: {{ .Values.containers.app-1.limits-memory}}
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 20
+       
+        # Cloud SQL Auth Proxy sidecar
+        - name: cloud-sql-proxy
+          image: "{{ .Values.containers.cloud-sql-proxy.image }}:{{ .Values.containers.cloud-sql-proxy.version }}"
+          env:
+            - name: PROJECT_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "myapp.fullname" . }}-app-config
+                  key: PROJECT_ID
+            - name: CLOUD_SQL_INSTANCE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "myapp.fullname" . }}-app-config
+                  key: CLOUD_SQL_INSTANCE_NAME
+          resources:
+            requests:
+              cpu: {{ .Values.containers.cloud-sql-proxy.requests-cpu}}
+              memory: {{ .Values.containers.cloud-sql-proxy.requests-memory}}
+            limits:
+              cpu: {{ .Values.containers.cloud-sql-proxy.limits-cpu}}
+              memory: {{ .Values.containers.cloud-sql-proxy.limits-memory}}
+          args:
+            - "--private-ip"
+            - "--address=127.0.0.1"
+            - "--port=3306"
+            - "$(PROJECT_ID):us-central1:$(CLOUD_SQL_INSTANCE_NAME)"
+# ---
+# this is a dummy db that simulate db locally
+# apiVersion: apps/v1
+# kind: StatefulSet
+# metadata:
+#   name: app-db-statefulset
+#   namespace: my-ns
+#   labels:
+#     db: app
+# spec:
+#   serviceName: app-db-service
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       db: app
+#   template:
+#     metadata:
+#       labels:
+#         db: app
+#     spec:
+#       containers:
+#         - name: mysql
+#           image: mysql:8.0
+#           ports:
+#             - containerPort: 3306
+#           env:
+#             - name: MYSQL_ROOT_PASSWORD
+#               valueFrom:
+#                 secretKeyRef:
+#                   name: app-secret
+#                   key: MYSQL_ROOT_PASSWORD
+#             - name: MYSQL_PASSWORD
+#               valueFrom:
+#                 secretKeyRef:
+#                   name: app-secret
+#                   key: MYSQL_PASSWORD
+#             - name: MYSQL_USER
+#               valueFrom:
+#                 secretKeyRef:
+#                   name: app-secret
+#                   key: MYSQL_USER
+#             - name: MYSQL_DATABASE
+#               valueFrom:
+#                 configMapKeyRef:
+#                   name: app-config
+#                   key: MYSQL_DATABASE
+#           volumeMounts:
+#             - name: data
+#               mountPath: /var/lib/mysql
+#           resources:
+#             requests:
+#               cpu: 250m
+#               memory: 512Mi
+#             limits:
+#               cpu: 1000m
+#               memory: 1Gi
+#           readinessProbe:
+#             exec:
+#               command:
+#                 - sh
+#                 - -c
+#                 - mysqladmin ping -h 127.0.0.1 -u root -p"$MYSQL_ROOT_PASSWORD"
+#             initialDelaySeconds: 10
+#             periodSeconds: 10
+#           livenessProbe:
+#             exec:
+#               command:
+#                 - sh
+#                 - -c
+#                 - mysqladmin ping -h 127.0.0.1 -u root -p"$MYSQL_ROOT_PASSWORD"
+#             initialDelaySeconds: 30
+#             periodSeconds: 20
+#   volumeClaimTemplates:
+#     - metadata:
+#         name: data
+#       spec:
+#         accessModes:
+#           - ReadWriteOnce
+#         storageClassName: standard
+#         resources:
+#           requests:
+#             storage: 10Gi

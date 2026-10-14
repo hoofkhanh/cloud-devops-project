@@ -1,0 +1,58 @@
+namespace: my-ns
+
+configMap:
+  MYSQL_DATABASE: "app"
+  PROJECT_ID: "devops-project-510903"
+  CLOUD_SQL_INSTANCE_NAME: "my-sql-instance"
+
+serviceAccount: "app-ksa"
+
+containers:
+  create-table-job: 
+    image: "mysql"
+    version: "8.0"
+      
+  cloud-sql-proxy:
+    image: "gcr.io/cloud-sql-connectors/cloud-sql-proxy"
+    version: "2"
+    requests-cpu: "10m"
+    limits-cpu: "20m"
+    requests-memory: "24Mi"
+    limits-memory: "40Mi"
+  
+  app-1:
+    image: "us-central1-docker.pkg.dev/devops-project-510903/my-repo/app"
+    version: "v1"
+    requests-cpu: "10m"
+    limits-cpu: "20m"
+    requests-memory: "50Mi"
+    limits-memory: "100Mi"
+    ports: "8080"
+    replicas: "2"
+
+  app-2:
+    image: "us-central1-docker.pkg.dev/devops-project-510903/my-repo/app"
+    version: "v2"
+    requests-cpu: "10m"
+    limits-cpu: "20m"
+    requests-memory: "50Mi"
+    limits-memory: "100Mi"
+    ports: "8080"
+    replicas: "2"
+
+gateway:
+  listeners:
+      name: "my-gateway"
+      protocol: "HTTP"
+      port: "80"
+
+service:
+  app-1:
+    port: "80"
+    targetPort: "8080"
+  app-2:
+    port: "80"
+    targetPort: "8080"
+
+
+  

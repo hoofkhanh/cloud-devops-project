@@ -1,0 +1,14 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: {{ include "myapp.fullname" . }}-app-gateway
+  namespace: {{ .Values.namespace }}
+  labels:
+    gateway: app
+    {{- include "myapp.labels" . | nindent 4 }}
+spec:
+  gatewayClassName: gke-l7-global-external-managed
+  listeners:
+    - name: {{ .Values.gateway.listeners.name }}
+      protocol: {{ .Values.gateway.listeners.protocol }}
+      port: {{ .Values.gateway.listeners.port }}

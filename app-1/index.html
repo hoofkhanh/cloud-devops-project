@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hello App</title>
+</head>
+<body>
+
+    <h1 id="message">Loading...</h1>
+
+    <script>
+        fetch("/api/name")
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("message").textContent =
+                    "Hello " + data.name;
+            })
+            .catch(error => {
+                document.getElementById("message").textContent =
+                    "Error: " + error;
+            });
+    </script>
+
+</body>
+</html>

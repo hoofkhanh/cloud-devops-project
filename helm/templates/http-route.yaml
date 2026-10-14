@@ -1,0 +1,19 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ include "myapp.fullname" . }}-app-http-route
+  namespace: {{ .Values.namespace}}
+  labels:
+    http-route: app
+    {{- include "myapp.labels" . | nindent 4 }}
+spec:
+  parentRefs:
+    - {{ include "myapp.fullname" . }}-app-gateway
+  rules:
+    - backendRefs:
+        - name: {{ include "myapp.fullname" . }}-app-1-service
+          port: {{ .Values.service.app-1.port }}
+          weight: 80
+        - name: {{ include "myapp.fullname" . }}-app-2-service
+          port: {{ .Values.service.app-2.port }}
+          weight: 20
