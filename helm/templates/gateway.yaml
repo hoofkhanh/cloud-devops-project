@@ -12,3 +12,4 @@ spec:
     - name: {{ .Values.gateway.listeners.name }}
       protocol: {{ .Values.gateway.listeners.protocol }}
       port: {{ .Values.gateway.listeners.port }}
+      # hostname: {{ .Values.gateway.host | quote }}

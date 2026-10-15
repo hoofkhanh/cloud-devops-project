@@ -41,6 +41,7 @@ containers:
     replicas: "2"
 
 gateway:
+  host: "example.com"
   listeners:
       name: "my-gateway"
       protocol: "HTTP"

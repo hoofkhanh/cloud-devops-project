@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ include "myapp.fullname" . }}-mysql-init
+  name: mysql-init
   namespace: {{ .Values.namespace }}
   labels:
     {{- include "myapp.labels" . | nindent 4 }}
@@ -12,7 +12,7 @@ spec:
       restartPolicy: OnFailure
       containers:
         - name: mysql-init
-          image: "{{ .Values.containers.create-table-job.image }}:{{ .Values.containers.create-table-job.version }}"
+          image: "{{ index .Values.containers "create-table-job" "image" }}:{{ index .Values.containers "create-table-job" "version" }}"
 
           env:
             - name: MYSQL_HOST
@@ -24,34 +24,31 @@ spec:
             - name: MYSQL_USER
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "myapp.fullname" . }}-app-secret
+                  name: app-secret
                   key: MYSQL_USER
 
             - name: MYSQL_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "myapp.fullname" . }}-app-secret
+                  name: app-secret
                   key: MYSQL_PASSWORD
-
 
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "myapp.fullname" . }}-app-secret
+                  name: app-secret
                   key: MYSQL_ROOT_PASSWORD
-
 
             - name: MYSQL_DATABASE
               valueFrom:
                 configMapKeyRef:
-                  name: {{ include "myapp.fullname" . }}-app-config
+                  name: app-config
                   key: MYSQL_DATABASE
 
           command:
             - /bin/sh
             - -c
             - |
-
               mysql -h "$MYSQL_HOST" \
                     -P "$MYSQL_PORT" \
                     -u root \
@@ -75,29 +72,30 @@ spec:
                 SELECT 1
                 FROM users
                 WHERE name = 'Khanh'
-              )
+              );
               EOF
+
         # Cloud SQL Auth Proxy sidecar
         - name: cloud-sql-proxy
-          image: "{{ .Values.containers.cloud-sql-proxy.image }}:{{ .Values.containers.cloud-sql-proxy.version }}"
+          image: "{{ index .Values.containers "cloud-sql-proxy" "image" }}:{{ index .Values.containers "cloud-sql-proxy" "version" }}"
           env:
             - name: PROJECT_ID
               valueFrom:
                 configMapKeyRef:
-                  name: {{ include "myapp.fullname" . }}-app-config
+                  name: app-config
                   key: PROJECT_ID
             - name: CLOUD_SQL_INSTANCE_NAME
               valueFrom:
                 configMapKeyRef:
-                  name: {{ include "myapp.fullname" . }}-app-config
+                  name: app-config
                   key: CLOUD_SQL_INSTANCE_NAME
           resources:
             requests:
-              cpu: {{ .Values.containers.cloud-sql-proxy.requests-cpu}}
-              memory: {{ .Values.containers.cloud-sql-proxy.requests-memory}}
+              cpu: {{ index .Values.containers "cloud-sql-proxy" "requests-cpu" }}
+              memory: {{ index .Values.containers "cloud-sql-proxy" "requests-memory" }}
             limits:
-              cpu: {{ .Values.containers.cloud-sql-proxy.limits-cpu}}
-              memory: {{ .Values.containers.cloud-sql-proxy.limits-memory}}
+              cpu: {{ index .Values.containers "cloud-sql-proxy" "limits-cpu" }}
+              memory: {{ index .Values.containers "cloud-sql-proxy" "limits-memory" }}
           args:
             - "--private-ip"
             - "--address=127.0.0.1"

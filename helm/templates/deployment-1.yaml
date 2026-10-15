@@ -2,12 +2,12 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "myapp.fullname" . }}-app-1-deployment
-  namespace: {{ .Values.namespace}}
+  namespace: {{ .Values.namespace }}
   labels:
     app: app-1
     {{- include "myapp.labels" . | nindent 4 }}
 spec:
-  replicas: {{ .Values.containers.app-1.replicas }}
+  replicas: {{ index .Values.containers "app-1" "replicas" }}
   selector:
     matchLabels:
       app: app-1
@@ -18,40 +18,40 @@ spec:
         app: app-1
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
-      serviceAccountName: {{ .Values.serviceAccount}}
+      serviceAccountName: {{ .Values.serviceAccount }}
       containers:
         - name: app-1
-          image: image: "{{ .Values.containers.app-1.image }}:{{ .Values.containers.app-1.version }}"
+          image: "{{ index .Values.containers "app-1" "image" }}:{{ index .Values.containers "app-1" "version" }}"
           #imagePullPolicy: Never
           ports:
-            - containerPort: {{ .Values.containers.app-1.ports }}
+            - containerPort: {{ index .Values.containers "app-1" "ports" }}
           env:
             - name: DB_HOST
               value: "127.0.0.1"
             - name: DB_NAME
               valueFrom:
                 configMapKeyRef:
-                  name: {{ include "myapp.fullname" . }}-app-config
+                  name: app-config
                   key: MYSQL_DATABASE
             - name: DB_USER
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "myapp.fullname" . }}-app-secret
+                  name: app-secret
                   key: MYSQL_USER
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "myapp.fullname" . }}-app-secret
+                  name: app-secret
                   key: MYSQL_PASSWORD
             - name: DB_PORT
               value: "3306"
           resources:
             requests:
-              cpu: {{ .Values.containers.app-1.requests-cpu}}
-              memory: {{ .Values.containers.app-1.requests-memory}}
+              cpu: {{ index .Values.containers "app-1" "requests-cpu" }}
+              memory: {{ index .Values.containers "app-1" "requests-memory" }}
             limits:
-              cpu: {{ .Values.containers.app-1.limits-cpu}}
-              memory: {{ .Values.containers.app-1.limits-memory}}
+              cpu: {{ index .Values.containers "app-1" "limits-cpu" }}
+              memory: {{ index .Values.containers "app-1" "limits-memory" }}
           readinessProbe:
             httpGet:
               path: /
@@ -64,28 +64,28 @@ spec:
               port: 8080
             initialDelaySeconds: 60
             periodSeconds: 20
-       
+
         # Cloud SQL Auth Proxy sidecar
         - name: cloud-sql-proxy
-          image: "{{ .Values.containers.cloud-sql-proxy.image }}:{{ .Values.containers.cloud-sql-proxy.version }}"
+          image: "{{ index .Values.containers "cloud-sql-proxy" "image" }}:{{ index .Values.containers "cloud-sql-proxy" "version" }}"
           env:
             - name: PROJECT_ID
               valueFrom:
                 configMapKeyRef:
-                  name: {{ include "myapp.fullname" . }}-app-config
+                  name: app-config
                   key: PROJECT_ID
             - name: CLOUD_SQL_INSTANCE_NAME
               valueFrom:
                 configMapKeyRef:
-                  name: {{ include "myapp.fullname" . }}-app-config
+                  name: app-config
                   key: CLOUD_SQL_INSTANCE_NAME
           resources:
             requests:
-              cpu: {{ .Values.containers.cloud-sql-proxy.requests-cpu}}
-              memory: {{ .Values.containers.cloud-sql-proxy.requests-memory}}
+              cpu: {{ index .Values.containers "cloud-sql-proxy" "requests-cpu" }}
+              memory: {{ index .Values.containers "cloud-sql-proxy" "requests-memory" }}
             limits:
-              cpu: {{ .Values.containers.cloud-sql-proxy.limits-cpu}}
-              memory: {{ .Values.containers.cloud-sql-proxy.limits-memory}}
+              cpu: {{ index .Values.containers "cloud-sql-proxy" "limits-cpu" }}
+              memory: {{ index .Values.containers "cloud-sql-proxy" "limits-memory" }}
           args:
             - "--private-ip"
             - "--address=127.0.0.1"

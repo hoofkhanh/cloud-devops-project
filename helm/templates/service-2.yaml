@@ -13,8 +13,8 @@ spec:
       app.kubernetes.io/instance: {{ .Release.Name }}
     ports:
       - protocol: TCP
-        port: {{ .Values.service.app-2.port }}
-        targetPort: {{ .Values.service.app-2.targetPort }}
+        port: {{ index .Values.service "app-2" "port" }}
+        targetPort: {{ index .Values.service "app-2" "targetPort" }}
 # ---
 # this is a dummy service that simulate service locally
 # apiVersion: v1
