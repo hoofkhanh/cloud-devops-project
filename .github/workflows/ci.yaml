@@ -263,10 +263,6 @@ jobs:
   image:
     name: Build, Scan and Publish ${{ matrix.app }}
     needs: [validate, changes]
-    if: |
-      github.event_name == 'workflow_dispatch' ||
-      (matrix.app == 'app-1' && needs.changes.outputs.app1 == 'true') ||
-      (matrix.app == 'app-2' && needs.changes.outputs.app2 == 'true')
     runs-on: ubuntu-latest
 
     strategy:
@@ -284,12 +280,24 @@ jobs:
 
     steps:
       - name: Checkout source
+        if: |
+          github.event_name == 'workflow_dispatch' ||
+            (matrix.app == 'app-1' && needs.changes.outputs.app1 == 'true') ||
+            (matrix.app == 'app-2' && needs.changes.outputs.app2 == 'true')
         uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
+        if: |
+          github.event_name == 'workflow_dispatch' ||
+            (matrix.app == 'app-1' && needs.changes.outputs.app1 == 'true') ||
+            (matrix.app == 'app-2' && needs.changes.outputs.app2 == 'true')
         uses: docker/setup-buildx-action@v3
 
       - name: Build Docker image
+        if: |
+          github.event_name == 'workflow_dispatch' ||
+            (matrix.app == 'app-1' && needs.changes.outputs.app1 == 'true') ||
+            (matrix.app == 'app-2' && needs.changes.outputs.app2 == 'true')
         uses: docker/build-push-action@v6
         with:
           context: ./app/${{ matrix.app }}
@@ -301,6 +309,10 @@ jobs:
           cache-to: type=gha,mode=max,scope=${{ matrix.app }}
 
       - name: Scan image with Trivy
+        if: |
+          github.event_name == 'workflow_dispatch' ||
+            (matrix.app == 'app-1' && needs.changes.outputs.app1 == 'true') ||
+            (matrix.app == 'app-2' && needs.changes.outputs.app2 == 'true')
         uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: ${{ matrix.app }}:${{ matrix.version }}
@@ -313,7 +325,12 @@ jobs:
           output: trivy-report.txt
         
       - name: Upload Trivy report
-        if: always()
+        if: |
+          success() && (
+            github.event_name == 'workflow_dispatch' ||
+            (matrix.app == 'app-1' && needs.changes.outputs.app1 == 'true') ||
+            (matrix.app == 'app-2' && needs.changes.outputs.app2 == 'true')
+          )
         uses: actions/upload-artifact@v4
         with:
           name: trivy-report-${{ matrix.app }}
@@ -322,18 +339,30 @@ jobs:
           retention-days: 7
 
       - name: Authenticate to Google Cloud
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        if: |
+          github.event_name == 'push' && github.ref == 'refs/heads/master' && (
+            (matrix.app == 'app-1' && needs.changes.outputs.app1 == 'true') ||
+            (matrix.app == 'app-2' && needs.changes.outputs.app2 == 'true')
+          )
         uses: google-github-actions/auth@v2
         with:
           workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
           service_account: ${{ vars.GCP_CI_SERVICE_ACCOUNT }}
 
       - name: Set up gcloud
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        if: |
+          github.event_name == 'push' && github.ref == 'refs/heads/master' && (
+            (matrix.app == 'app-1' && needs.changes.outputs.app1 == 'true') ||
+            (matrix.app == 'app-2' && needs.changes.outputs.app2 == 'true')
+          )
         uses: google-github-actions/setup-gcloud@v2
 
       - name: Publish image to Artifact Registry
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        if: |
+          github.event_name == 'push' && github.ref == 'refs/heads/master' && (
+            (matrix.app == 'app-1' && needs.changes.outputs.app1 == 'true') ||
+            (matrix.app == 'app-2' && needs.changes.outputs.app2 == 'true')
+          )
         shell: bash
         run: |
           set -euo pipefail
