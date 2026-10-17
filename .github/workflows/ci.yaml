@@ -92,7 +92,6 @@ jobs:
       
       # 5. Verify dependencies
       - name: Verify dependencies
-        working-directory: app
         run: |
           set -euo pipefail
 
@@ -106,7 +105,6 @@ jobs:
 
       # 6. Check go.mod and go.sum
       - name: Check go.mod and go.sum
-        working-directory: app
         run: |
           set -euo pipefail
 
