@@ -23,9 +23,12 @@ func nameHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{
+
+	if err := json.NewEncoder(w).Encode(map[string]string{
 		"name": name,
-	})
+	}); err != nil {
+		log.Printf("Failed to encode JSON response: %v", err)
+	}
 }
 
 func main() {
