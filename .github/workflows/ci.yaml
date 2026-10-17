@@ -135,14 +135,12 @@ jobs:
         with:
           version: v1.64.8
           working-directory: app/app-1
-          args: --timeout=5m
 
       - name: Run golangci-lint for App 2
         uses: golangci/golangci-lint-action@v6
         with:
           version: v1.64.8
           working-directory: app/app-2
-          args: --timeout=5m
 
       # 9. Run tests with race detector and coverage
       - name: Run tests with race detector and coverage
