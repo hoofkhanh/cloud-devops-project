@@ -231,8 +231,8 @@ jobs:
         with:
           args: >
             -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY }}
-            -Dsonar.sources=app,terraform,k8s,helm
             -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }}
+            -Dsonar.sources=app
             -Dsonar.go.coverage.reportPaths=app/app-1/coverage.out,app/app-2/coverage.out
 
   image:
