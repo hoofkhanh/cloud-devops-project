@@ -55,7 +55,7 @@ jobs:
           for app in app/app-1 app/app-2; do
             echo "Verifying Go modules for ${app}..."
             (
-              cd "app/${app}"
+              cd "${app}"
               go mod tidy
               git diff --exit-code -- go.mod go.sum
               go mod verify
