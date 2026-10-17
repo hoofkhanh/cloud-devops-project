@@ -6,8 +6,24 @@ export GSA_EMAIL="cloudsql-client"
 
 set -e
 
-read -rp "Enter backend hostname: " HOSTNAME
-HOSTNAME=${HOSTNAME:-hoofkhanh.com}
+# read -rp "Enter backend hostname: " HOSTNAME
+# HOSTNAME=${HOSTNAME:-hoofkhanh.com}
+
+MYSQL_ROOT_PASSWORD="${1:-}"
+MYSQL_PASSWORD="${2:-}"
+
+if [[ -z "$MYSQL_ROOT_PASSWORD" ]]; then
+  read -rsp "Enter your MySQL root password: " MYSQL_ROOT_PASSWORD
+  echo
+fi
+
+if [[ -z "$MYSQL_PASSWORD" ]]; then
+  read -rsp "Enter your MySQL user password: " MYSQL_PASSWORD
+  echo
+fi
+
+: "${MYSQL_ROOT_PASSWORD:?Required to enter MYSQL_ROOT_PASSWORD}"
+: "${MYSQL_PASSWORD:?Required to enter MYSQL_PASSWORD}"
 
 
 echo
@@ -15,9 +31,11 @@ echo "==========================INSTALL HELM============================"
 helm upgrade --install dev . \
   -n "$NAMESPACE" \
   --create-namespace \
-  --set gateway.host="$HOSTNAME" \
   --set GSA_EMAIL="$GSA_EMAIL" \
-  --set PROJECT_ID="$PROJECT_ID"
+  --set PROJECT_ID="$PROJECT_ID" \
+  --set MYSQL_ROOT_PASSWORD="$MYSQL_ROOT_PASSWORD" \
+  --set MYSQL_PASSWORD="$MYSQL_PASSWORD"
+  # --set gateway.host="$HOSTNAME" \
 
 echo "==========================INSTALL HELM============================"
 echo
@@ -52,3 +70,13 @@ GATEWAY_ADDRESS=$(kubectl get gateway dev-cloud-devops-project-app-gateway \
   -n my-ns -o jsonpath='{.status.addresses[0].value}')
 
 echo "url: http://$GATEWAY_ADDRESS"
+
+JOB=$(
+  helm template dev . \
+  -s templates/create-table-job.yaml \
+  -n my-ns \
+  | kubectl create --dry-run=client -f - -o jsonpath='{.metadata.name}'
+)
+kubectl wait --for=condition=complete "job/$JOB" \
+  -n my-ns --timeout=30s || true
+kubectl delete job $JOB -n my-ns
