@@ -267,7 +267,7 @@ jobs:
           file: ./app/${{ matrix.app }}/Dockerfile
           push: false
           load: true
-          tags: app:${{ matrix.version }}
+          tags: ${{ matrix.app }}:${{ matrix.version }}
           cache-from: type=gha,scope=${{ matrix.app }}
           cache-to: type=gha,mode=max,scope=${{ matrix.app }}
 
