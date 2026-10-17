@@ -46,22 +46,8 @@ jobs:
         with:
           go-version-file: app/app-2/go.mod
           cache-dependency-path: app/app-2/go.sum
-
-      # 2. Check go.mod and go.sum
-      - name: Check go.mod and go.sum
-        working-directory: app
-        run: |
-          set -euo pipefail
-
-          for app in app/app-1 app/app-2; do
-            echo "Checking go.mod and go.sum for ${app}..."
-            (
-              cd "app/${app}"
-              go mod tidy -diff
-            )
-          done
       
-      # 3. Verify dependency files
+      # 2. Verify dependency files
       - name: Verify Go modules
         run: |
           set -euo pipefail
@@ -76,7 +62,7 @@ jobs:
             )
           done
 
-      # 4. Formatting
+      # 3. Formatting
       - name: Check Go formatting
         run: |
           set -euo pipefail
@@ -91,7 +77,7 @@ jobs:
             fi
           done
       
-      # 5. Download dependencies
+      # 4. Download dependencies
       - name: Download dependencies
         run: |
           set -euo pipefail
@@ -99,12 +85,12 @@ jobs:
           for app in app/app-1 app/app-2; do
             echo "Downloading dependencies for ${app}..."
             (
-              cd "app/${app}"
+              cd "${app}"
               go mod download
             )
           done
       
-      # 6. Verify dependencies
+      # 5. Verify dependencies
       - name: Verify dependencies
         working-directory: app
         run: |
@@ -113,22 +99,34 @@ jobs:
           for app in app/app-1 app/app-2; do
             echo "Verifying dependencies for ${app}..."
             (
-              cd "app/${app}"
+              cd "${app}"
               go mod verify
             )
           done
 
-      
+      # 6. Check go.mod and go.sum
+      - name: Check go.mod and go.sum
+        working-directory: app
+        run: |
+          set -euo pipefail
+
+          for app in app/app-1 app/app-2; do
+            echo "Checking go.mod and go.sum for ${app}..."
+            (
+              cd "${app}"
+              go mod tidy -diff
+            )
+          done
 
       # 7. Run static analysis
       - name: Run go vet
         run: |
           set -euo pipefail
 
-          for app in app-1 app-2; do
+          for app in app/app-1 app/app-2; do
             echo "Running go vet for ${app}..."
             (
-              cd "app/${app}"
+              cd "${app}"
               go vet ./...
             )
           done
@@ -153,10 +151,10 @@ jobs:
         run: |
           set -euo pipefail
 
-          for app in app-1 app-2; do
+          for app in app/app-1 app/app-2; do
             echo "Running tests for ${app}..."
             (
-              cd "app/${app}"
+              cd "${app}"
               go test \
                 -race \
                 -covermode=atomic \
@@ -170,10 +168,10 @@ jobs:
         run: |
           set -euo pipefail
 
-          for app in app-1 app-2; do
+          for app in app/app-1 app/app-2; do
             echo "Building ${app}..."
             (
-              cd "app/${app}"
+              cd "${app}"
               go build ./...
             )
           done
