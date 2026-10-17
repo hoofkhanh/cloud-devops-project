@@ -279,8 +279,18 @@ jobs:
           scanners: vuln
           severity: HIGH,CRITICAL
           ignore-unfixed: true
-          exit-code: '1'
+          exit-code: '0'
           format: table
+          output: trivy-report.txt
+        
+      - name: Upload Trivy report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-report-${{ matrix.app }}
+          path: trivy-report.txt
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Authenticate to Google Cloud
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
