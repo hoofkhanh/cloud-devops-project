@@ -1,0 +1,314 @@
+name: Go CI Pipeline
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GO_VERSION: "1.24"
+  GAR_LOCATION: us-central1
+  GAR_REPOSITORY: my-repo
+
+jobs:
+  validate:
+    name: Format, Lint, Test and Quality
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      pull-requests: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # 1. Set up Go and dependency cache
+      - name: Set up Go for App 1
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: app/app-1/go.mod
+          cache-dependency-path: app/app-1/go.sum
+      
+      - name: Set up Go for App 2
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: app/app-2/go.mod
+          cache-dependency-path: app/app-2/go.sum
+      
+      # 2. Verify dependency files
+      - name: Verify Go modules
+        run: |
+          set -euo pipefail
+
+          for app in app/app-1 app/app-2; do
+            echo "Verifying Go modules for ${app}..."
+            (
+              cd "app/${app}"
+              go mod tidy
+              git diff --exit-code -- go.mod go.sum
+              go mod verify
+            )
+          done
+
+      # 3. Formatting
+      - name: Check Go formatting
+        run: |
+          set -euo pipefail
+
+          for app in app/app-1 app/app-2; do
+            echo "Checking $app"
+            files="$(gofmt -l "$app")"
+
+            if [ -n "$files" ]; then
+              echo "$files"
+              exit 1
+            fi
+          done
+      
+      # 4. Download dependencies
+      - name: Download dependencies
+        run: |
+          set -euo pipefail
+
+          for app in app/app-1 app/app-2; do
+            echo "Downloading dependencies for ${app}..."
+            (
+              cd "app/${app}"
+              go mod download
+            )
+          done
+      
+      # 5. Verify dependencies
+      - name: Verify dependencies
+        working-directory: app
+        run: |
+          set -euo pipefail
+
+          for app in app/app-1 app/app-2; do
+            echo "Verifying dependencies for ${app}..."
+            (
+              cd "app/${app}"
+              go mod verify
+            )
+          done
+
+      # 6. Check go.mod and go.sum
+      - name: Check go.mod and go.sum
+        working-directory: app
+        run: |
+          set -euo pipefail
+
+          for app in app/app-1 app/app-2; do
+            echo "Checking go.mod and go.sum for ${app}..."
+            (
+              cd "app/${app}"
+              go mod tidy -diff
+            )
+          done
+
+      # 7. Run static analysis
+      - name: Run go vet
+        run: |
+          set -euo pipefail
+
+          for app in app-1 app-2; do
+            echo "Running go vet for ${app}..."
+            (
+              cd "app/${app}"
+              go vet ./...
+            )
+          done
+
+      # 8. Run lint
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.64.8
+          working-directory: app/app-1
+          args: --timeout=5m
+
+      - name: Run golangci-lint for App 2
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.64.8
+          working-directory: app/app-2
+          args: --timeout=5m
+
+      # 9. Run tests with race detector and coverage
+      - name: Run tests with race detector and coverage
+        run: |
+          set -euo pipefail
+
+          for app in app-1 app-2; do
+            echo "Running tests for ${app}..."
+            (
+              cd "app/${app}"
+              go test \
+                -race \
+                -covermode=atomic \
+                -coverprofile=coverage.out \
+                ./...
+            )
+          done
+      
+      # 10. Build Go applications
+      - name: Build Go applications
+        run: |
+          set -euo pipefail
+
+          for app in app-1 app-2; do
+            echo "Building ${app}..."
+            (
+              cd "app/${app}"
+              go build ./...
+            )
+          done
+
+      # 11. Upload test coverage
+      - name: Upload test coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: go-coverage
+          path: |
+            app/app-1/coverage.out
+            app/app-2/coverage.out
+          if-no-files-found: ignore
+          retention-days: 7
+      
+      # - name: Set up Terraform
+      #   if: hashFiles('terraform/**/*.tf') != ''
+      #   uses: hashicorp/setup-terraform@v3
+
+      # - name: Terraform format and validate
+      #   if: hashFiles('terraform/**/*.tf') != ''
+      #   shell: bash
+      #   run: |
+      #     set -euo pipefail
+
+      #     terraform fmt -check -recursive terraform
+
+      #     while IFS= read -r dir; do
+      #       echo "Validating Terraform directory: $dir"
+      #       terraform -chdir="$dir" init \
+      #         -backend=false \
+      #         -input=false
+
+      #       terraform -chdir="$dir" validate
+      #     done < <(
+      #       find terraform -type f -name '*.tf' \
+      #         -printf '%h\n' | sort -u
+      #     )
+
+      - name: Set up Helm
+        if: hashFiles('helm/**/Chart.yaml') != ''
+        uses: azure/setup-helm@v4
+
+      - name: Lint Helm charts
+        if: hashFiles('helm/**/Chart.yaml') != ''
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          find helm -type f -name Chart.yaml -print |
+          while IFS= read -r chart; do
+            helm lint "$(dirname "$chart")"
+          done
+
+      - name: SonarQube Cloud analysis
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: https://sonarcloud.io
+        with:
+          args: >
+            -Dsonar.projectKey=${{ vars.SONAR_PROJECT_KEY }}
+            -Dsonar.sources=app,terraform,k8s,helm
+            -Dsonar.go.coverage.reportPaths=app/app-1/coverage.out,app/app-2/coverage.out
+
+  image:
+    name: Build, Scan and Publish ${{ matrix.app }}
+    needs: validate
+    runs-on: ubuntu-latest
+
+    strategy:
+    fail-fast: false
+    matrix:
+      include:
+        - app: app-1
+          version: v1
+        - app: app-2
+          version: v2
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./app/${{ matrix.app }}
+          file: ./app/${{ matrix.app }}/Dockerfile
+          push: false
+          load: true
+          tags: app:${{ matrix.version }}
+          cache-from: type=gha,scope=${{ matrix.app }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.app }}
+
+      - name: Scan image with Trivy
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ${{ matrix.app }}:${{ matrix.version }}
+          scan-type: image
+          scanners: vuln
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: '1'
+          format: table
+
+      - name: Authenticate to Google Cloud
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_CI_SERVICE_ACCOUNT }}
+
+      - name: Set up gcloud
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Publish image to Artifact Registry
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          IMAGE="${GAR_LOCATION}-docker.pkg.dev/${PROJECT_ID}/${GAR_REPOSITORY}/${{ matrix.app }}:${{ matrix.version }}"
+
+          gcloud auth configure-docker \
+            "${GAR_LOCATION}-docker.pkg.dev" \
+            --quiet
+
+          docker tag "${{ matrix.app }}:${{ matrix.version }}" "$IMAGE"
+          docker push "$IMAGE"
+
+          echo "Published image: $IMAGE"
