@@ -20,6 +20,31 @@ env:
   PROJECT_ID: "devops-project-510903"
 
 jobs:
+  changes:
+    name: Detect application changes
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    outputs:
+      app1: ${{ steps.filter.outputs.app1 }}
+      app2: ${{ steps.filter.outputs.app2 }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Detect changed applications
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            app1:
+              - 'app/app-1/**'
+            app2:
+              - 'app/app-2/**'
+
   validate:
     name: Format, Lint, Test and Quality
     runs-on: ubuntu-latest
@@ -237,7 +262,11 @@ jobs:
 
   image:
     name: Build, Scan and Publish ${{ matrix.app }}
-    needs: validate
+    needs: [validate, changes]
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (matrix.app == 'app-1' && needs.changes.outputs.app1 == 'true') ||
+      (matrix.app == 'app-2' && needs.changes.outputs.app2 == 'true')
     runs-on: ubuntu-latest
 
     strategy:
