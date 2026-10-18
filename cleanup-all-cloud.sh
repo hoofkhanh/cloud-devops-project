@@ -164,55 +164,55 @@ else
 fi
 
 # Step 9: Delete GitHub Actions Workload Identity Federation
-echo
-echo "Step 9: Delete GitHub Actions WIF resources"
+# echo
+# echo "Step 9: Delete GitHub Actions WIF resources"
 
-GITHUB_REPO="${GITHUB_REPO:-hoofkhanh/cloud-devops-project}"
-WIF_POOL="${WIF_POOL:-github-pool}"
-WIF_PROVIDER="${WIF_PROVIDER:-github-provider}"
+# GITHUB_REPO="${GITHUB_REPO:-hoofkhanh/cloud-devops-project}"
+# WIF_POOL="${WIF_POOL:-github-pool}"
+# WIF_PROVIDER="${WIF_PROVIDER:-github-provider}"
 
-PROJECT_NUMBER=$(gcloud projects describe "${PROJECT_ID}" \
-  --format="value(projectNumber)")
+# PROJECT_NUMBER=$(gcloud projects describe "${PROJECT_ID}" \
+#   --format="value(projectNumber)")
 
-if gcloud iam service-accounts describe "${BUILD_SA_EMAIL}" \
-  --project="${PROJECT_ID}" >/dev/null 2>&1; then
+# if gcloud iam service-accounts describe "${BUILD_SA_EMAIL}" \
+#   --project="${PROJECT_ID}" >/dev/null 2>&1; then
 
-  gcloud iam service-accounts remove-iam-policy-binding \
-    "${BUILD_SA_EMAIL}" \
-    --project="${PROJECT_ID}" \
-    --role="roles/iam.workloadIdentityUser" \
-    --member="principalSet://iam.googleapis.com/projects/${PROJECT_NUMBER}/locations/global/workloadIdentityPools/${WIF_POOL}/attribute.repository/${GITHUB_REPO}" \
-    --quiet || echo "No matching impersonation binding to remove."
-fi
+#   gcloud iam service-accounts remove-iam-policy-binding \
+#     "${BUILD_SA_EMAIL}" \
+#     --project="${PROJECT_ID}" \
+#     --role="roles/iam.workloadIdentityUser" \
+#     --member="principalSet://iam.googleapis.com/projects/${PROJECT_NUMBER}/locations/global/workloadIdentityPools/${WIF_POOL}/attribute.repository/${GITHUB_REPO}" \
+#     --quiet || echo "No matching impersonation binding to remove."
+# fi
 
-if gcloud iam workload-identity-pools providers describe \
-  "${WIF_PROVIDER}" \
-  --project="${PROJECT_ID}" \
-  --location="global" \
-  --workload-identity-pool="${WIF_POOL}" >/dev/null 2>&1; then
+# if gcloud iam workload-identity-pools providers describe \
+#   "${WIF_PROVIDER}" \
+#   --project="${PROJECT_ID}" \
+#   --location="global" \
+#   --workload-identity-pool="${WIF_POOL}" >/dev/null 2>&1; then
 
-  gcloud iam workload-identity-pools providers delete \
-    "${WIF_PROVIDER}" \
-    --project="${PROJECT_ID}" \
-    --location="global" \
-    --workload-identity-pool="${WIF_POOL}" \
-    --quiet
-else
-  echo "GitHub provider not found; skipping."
-fi
+#   gcloud iam workload-identity-pools providers delete \
+#     "${WIF_PROVIDER}" \
+#     --project="${PROJECT_ID}" \
+#     --location="global" \
+#     --workload-identity-pool="${WIF_POOL}" \
+#     --quiet
+# else
+#   echo "GitHub provider not found; skipping."
+# fi
 
-if gcloud iam workload-identity-pools describe \
-  "${WIF_POOL}" \
-  --project="${PROJECT_ID}" \
-  --location="global" >/dev/null 2>&1; then
+# if gcloud iam workload-identity-pools describe \
+#   "${WIF_POOL}" \
+#   --project="${PROJECT_ID}" \
+#   --location="global" >/dev/null 2>&1; then
 
-  gcloud iam workload-identity-pools delete "${WIF_POOL}" \
-    --project="${PROJECT_ID}" \
-    --location="global" \
-    --quiet
-else
-  echo "GitHub pool not found; skipping."
-fi
+#   gcloud iam workload-identity-pools delete "${WIF_POOL}" \
+#     --project="${PROJECT_ID}" \
+#     --location="global" \
+#     --quiet
+# else
+#   echo "GitHub pool not found; skipping."
+# fi
 
 echo
 echo "============================================================"

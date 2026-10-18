@@ -25,6 +25,8 @@ fi
 : "${MYSQL_ROOT_PASSWORD:?Required to enter MYSQL_ROOT_PASSWORD}"
 : "${MYSQL_PASSWORD:?Required to enter MYSQL_PASSWORD}"
 
+echo $MYSQL_ROOT_PASSWORD
+echo $MYSQL_PASSWORD
 
 echo
 echo "==========================INSTALL HELM============================"

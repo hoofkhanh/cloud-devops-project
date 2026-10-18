@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd-helm
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/hoofkhanh/cloud-devops-project
+    targetRevision: HEAD
+    path: helm
+    helm:
+      releaseName: dev
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: my-ns
+
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    automated:
+      selfHeal: true
+      prune: true

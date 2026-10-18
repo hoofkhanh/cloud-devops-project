@@ -334,8 +334,8 @@ gcloud artifacts repositories add-iam-policy-binding "$REPO" \
 
 # Configuration
 GITHUB_REPO="hoofkhanh/cloud-devops-project"
-POOL_ID="github-pool"
-PROVIDER_ID="github-provider"
+POOL_ID="github-pool2"
+PROVIDER_ID="github-provider2"
 SA_EMAIL="${BUILD_SA}@${PROJECT_ID}.iam.gserviceaccount.com"
 
 
@@ -344,20 +344,31 @@ PROJECT_NUMBER=$(gcloud projects describe "$PROJECT_ID" \
   --format="value(projectNumber)")
 
 # Create GitHub Workload Identity Pool
-gcloud iam workload-identity-pools create "$POOL_ID" \
+if ! gcloud iam workload-identity-pools describe "$POOL_ID" \
   --project="$PROJECT_ID" \
-  --location="global" \
-  --display-name="GitHub Actions Pool"
+  --location="global" >/dev/null 2>&1; then
+
+  gcloud iam workload-identity-pools create "$POOL_ID" \
+    --project="$PROJECT_ID" \
+    --location="global" \
+    --display-name="GitHub Actions Pool"
+fi
 
 # Create GitHub OIDC Provider
-gcloud iam workload-identity-pools providers create-oidc "$PROVIDER_ID" \
+if ! gcloud iam workload-identity-pools providers describe "$PROVIDER_ID" \
   --project="$PROJECT_ID" \
   --location="global" \
-  --workload-identity-pool="$POOL_ID" \
-  --display-name="GitHub Actions Provider" \
-  --issuer-uri="https://token.actions.githubusercontent.com" \
-  --attribute-mapping="google.subject=assertion.sub,attribute.repository=assertion.repository" \
-  --attribute-condition="assertion.repository == '${GITHUB_REPO}'"
+  --workload-identity-pool="$POOL_ID" > /dev/null 2>&1; then
+
+  gcloud iam workload-identity-pools providers create-oidc "$PROVIDER_ID" \
+    --project="$PROJECT_ID" \
+    --location="global" \
+    --workload-identity-pool="$POOL_ID" \
+    --display-name="GitHub Actions Provider" \
+    --issuer-uri="https://token.actions.githubusercontent.com" \
+    --attribute-mapping="google.subject=assertion.sub,attribute.repository=assertion.repository" \
+    --attribute-condition="assertion.repository == '${GITHUB_REPO}'"
+fi
 
 # Allow this GitHub repository to impersonate the service account
 gcloud iam service-accounts add-iam-policy-binding "$SA_EMAIL" \
