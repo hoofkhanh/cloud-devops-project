@@ -12,7 +12,8 @@ spec:
       app: app-2
       app.kubernetes.io/instance: {{ .Release.Name }}
     ports:
-      - protocol: TCP
+      - name: http
+        protocol: TCP
         port: {{ index .Values.service "app-2" "port" }}
         targetPort: {{ index .Values.service "app-2" "targetPort" }}
 # ---

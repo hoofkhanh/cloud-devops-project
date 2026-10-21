@@ -7,18 +7,101 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 var db *sql.DB
+
+var (
+	httpRequests = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "app_http_requests_total",
+			Help: "Total number of HTTP requests.",
+		},
+		[]string{"method", "route", "status"},
+	)
+
+	httpDuration = prometheus.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:    "app_http_request_duration_seconds",
+			Help:    "HTTP request duration in seconds.",
+			Buckets: prometheus.DefBuckets,
+		},
+		[]string{"method", "route"},
+	)
+
+	httpErrors = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "app_http_errors_total",
+			Help: "Total number of HTTP 5xx responses.",
+		},
+		[]string{"route"},
+	)
+)
+
+func init() {
+	prometheus.MustRegister(
+		httpRequests,
+		httpDuration,
+		httpErrors,
+	)
+}
+
+// Records request count, duration, and HTTP status.
+type statusRecorder struct {
+	http.ResponseWriter
+	status int
+}
+
+func (r *statusRecorder) WriteHeader(status int) {
+	r.status = status
+	r.ResponseWriter.WriteHeader(status)
+}
+
+func instrumentHandler(route string, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+
+		recorder := &statusRecorder{
+			ResponseWriter: w,
+			status:         http.StatusOK,
+		}
+
+		next.ServeHTTP(recorder, r)
+
+		status := strconv.Itoa(recorder.status)
+
+		httpRequests.WithLabelValues(
+			r.Method, route, status,
+		).Inc()
+
+		httpDuration.WithLabelValues(
+			r.Method, route,
+		).Observe(time.Since(start).Seconds())
+
+		if recorder.status >= 500 {
+			httpErrors.WithLabelValues(route).Inc()
+		}
+	})
+}
 
 func nameHandler(w http.ResponseWriter, r *http.Request) {
 	var name string
 
 	err := db.QueryRow("SELECT name FROM users LIMIT 1").Scan(&name)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Printf("Database query failed: %v", err)
+		http.Error(
+			w,
+			"Internal server error",
+			http.StatusInternalServerError,
+		)
 		return
 	}
 
@@ -53,6 +136,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer db.Close()
 
 	if err := db.Ping(); err != nil {
 		log.Fatal(err)
@@ -60,9 +144,13 @@ func main() {
 
 	http.HandleFunc("/api/name", nameHandler)
 
-	// Serve UI
+	// Expose metrics for Prometheus.
+	http.Handle("/metrics", promhttp.Handler())
+
+	// Serve UI.
 	http.Handle("/", http.FileServer(http.Dir(".")))
 
 	log.Println("Server running on :8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
+
 }
