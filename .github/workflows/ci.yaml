@@ -156,15 +156,15 @@ jobs:
 
       # 8. Run lint
       - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v6
+        uses: golangci/golangci-lint-action@v8
         with:
-          version: v1.64.8
+          version: latest
           working-directory: app/app-1
 
       - name: Run golangci-lint for App 2
-        uses: golangci/golangci-lint-action@v6
+        uses: golangci/golangci-lint-action@v8
         with:
-          version: v1.64.8
+          version: latest
           working-directory: app/app-2
 
       # 9. Run tests with race detector and coverage
