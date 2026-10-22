@@ -18,7 +18,7 @@ spec:
       serviceAccountName: app-ksa
       containers:
         - name: app-1
-          image: us-central1-docker.pkg.dev/devops-project-510903/my-repo/app:v1
+          image: us-central1-docker.pkg.dev/devops-project-510903/my-repo/app:v1.2
           #imagePullPolicy: Never
           ports:
             - containerPort: 8080

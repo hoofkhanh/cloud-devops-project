@@ -18,5 +18,5 @@ spec:
           - app-2
   endpoints:
     - port: http
-      path: /metrics
+      path: /metrics-broken
       interval: 15s

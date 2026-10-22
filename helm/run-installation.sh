@@ -80,5 +80,5 @@ JOB=$(
   | kubectl create --dry-run=client -f - -o jsonpath='{.metadata.name}'
 )
 kubectl wait --for=condition=complete "job/$JOB" \
-  -n my-ns --timeout=30s || true
+  -n my-ns --timeout=60s || true
 kubectl delete job $JOB -n my-ns

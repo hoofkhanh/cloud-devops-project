@@ -148,7 +148,13 @@ func main() {
 	http.Handle("/metrics", promhttp.Handler())
 
 	// Serve UI.
-	http.Handle("/", http.FileServer(http.Dir(".")))
+	http.Handle(
+		"/",
+		instrumentHandler(
+			"/",
+			http.FileServer(http.Dir(".")),
+		),
+	)
 
 	log.Println("Server running on :8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
