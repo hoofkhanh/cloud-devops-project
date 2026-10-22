@@ -1,0 +1,26 @@
+alertmanager:
+  alertmanagerSpec:
+    secrets:
+      - secret-monitoring
+
+  config:
+    global:
+      smtp_smarthost: 'smtp.gmail.com:587'
+      smtp_from: 'hotuankhanh20112016@gmail.com'
+      smtp_auth_username: 'hotuankhanh20112016@gmail.com'
+      smtp_auth_password_file: '/etc/alertmanager/secrets/secret-monitoring/smtp-password'
+      smtp_require_tls: true
+
+    route:
+      receiver: email-me
+      group_wait: 10s
+      group_interval: 1m
+      repeat_interval: 1h
+
+    receivers:
+      - name: 'null'
+
+      - name: email-me
+        email_configs:
+          - to: 'hotuankhanh20112016@gmail.com'
+            send_resolved: true

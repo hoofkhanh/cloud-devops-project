@@ -11,6 +11,8 @@ set -e
 
 MYSQL_ROOT_PASSWORD="${1:-}"
 MYSQL_PASSWORD="${2:-}"
+SMTP_USERNAME="${3:-hotuankhanh20112016@gmail.com}"
+SMTP_PASSWORD="${4:-}"
 
 if [[ -z "$MYSQL_ROOT_PASSWORD" ]]; then
   read -rsp "Enter your MySQL root password: " MYSQL_ROOT_PASSWORD
@@ -22,11 +24,14 @@ if [[ -z "$MYSQL_PASSWORD" ]]; then
   echo
 fi
 
+if [[ -z "$SMTP_PASSWORD" ]]; then
+  read -rsp "Enter app passwrod of gmail: " SMTP_PASSWORD
+  echo
+fi
+
 : "${MYSQL_ROOT_PASSWORD:?Required to enter MYSQL_ROOT_PASSWORD}"
 : "${MYSQL_PASSWORD:?Required to enter MYSQL_PASSWORD}"
-
-echo $MYSQL_ROOT_PASSWORD
-echo $MYSQL_PASSWORD
+: "${SMTP_PASSWORD:?Required to enter SMTP_PASSWORD}"
 
 echo
 echo "==========================INSTALL HELM============================"
@@ -36,7 +41,9 @@ helm upgrade --install dev . \
   --set GSA_EMAIL="$GSA_EMAIL" \
   --set PROJECT_ID="$PROJECT_ID" \
   --set MYSQL_ROOT_PASSWORD="$MYSQL_ROOT_PASSWORD" \
-  --set MYSQL_PASSWORD="$MYSQL_PASSWORD"
+  --set MYSQL_PASSWORD="$MYSQL_PASSWORD" \
+  --set SMTP_USERNAME="$SMTP_USERNAME" \
+  --set SMTP_PASSWORD="$SMTP_PASSWORD"
   # --set gateway.host="$HOSTNAME" \
 
 echo "==========================INSTALL HELM============================"

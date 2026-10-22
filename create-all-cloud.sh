@@ -32,6 +32,12 @@ read -rsp "Enter MYSQL root password: " ROOT_PASSWORD
 echo
 ROOT_PASSWORD="${ROOT_PASSWORD:?Set ROOT_PASSWORD before running}"
 
+SMTP_USERNAME="hotuankhanh20112016@gmail.com"
+
+read -rsp "Gmail App Password: " SMTP_PASSWORD
+echo
+SMTP_PASSWORD="${SMTP_PASSWORD:?Set SMTP_PASSWORD before running}"
+
 SQL_SA="cloudsql-client"
 NAMESPACE="my-ns"
 KSA="app-ksa"
@@ -411,10 +417,17 @@ helm repo add prometheus-community \
 
 helm repo update
 
-helm install monitoring prometheus-community/kube-prometheus-stack \
+# kubectl apply -f "$HOME/cloud-devops-project/helm/secret-monitoring.yaml"
+
+helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
   --namespace monitoring \
   --create-namespace \
-  --set-string grafana.env.GF_SECURITY_CSRF_TRUSTED_ORIGINS="3000-$WEB_HOST"
+  --set-string grafana.env.GF_SECURITY_CSRF_TRUSTED_ORIGINS="3000-$WEB_HOST" \
+  -f "$HOME/cloud-devops-project/helm/monitoring-values.yaml"
+
+# helm upgrade monitoring prometheus-community/kube-prometheus-stack \
+# -n monitoring \
+# -f "$HOME/cloud-devops-project/helm/monitoring-values.yaml"
 
 # helm upgrade monitoring prometheus-community/kube-prometheus-stack \
 #   --namespace monitoring \
@@ -425,8 +438,7 @@ kubectl --namespace monitoring get secrets monitoring-grafana \
   -o jsonpath="{.data.admin-password}" | base64 -d ; echo "Grafana's password is above ^^"
 
 cd "$HOME/cloud-devops-project/helm"
-./run-installation.sh "$ROOT_PASSWORD" "$SQL_PASSWORD"
-
+./run-installation.sh "$ROOT_PASSWORD" "$SQL_PASSWORD" "$SMTP_USERNAME" "$SMTP_PASSWORD"
 
 
 echo

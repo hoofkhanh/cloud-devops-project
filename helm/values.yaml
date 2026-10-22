@@ -54,6 +54,3 @@ service:
   app-2:
     port: "80"
     targetPort: "8080"
-
-
-  
