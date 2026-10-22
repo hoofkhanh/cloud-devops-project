@@ -17,7 +17,7 @@ spec:
           for: 1m
           labels:
             severity: critical
-          annotations:s
+         annotations:
             summary: "Application target is down"
             description: >-
               A target in namespace my-ns has been
