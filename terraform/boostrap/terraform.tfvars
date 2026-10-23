@@ -1,0 +1,5 @@
+project_name       = "DevOps Project"
+project_id         = "dev-devops-project-2026"
+billing_account_id = "016297-13C0DC-CF2B95"
+region             = "us-central1"
+org_id             = "443981414866"
