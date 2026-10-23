@@ -34,7 +34,7 @@ ROOT_PASSWORD="${ROOT_PASSWORD:?Set ROOT_PASSWORD before running}"
 
 SMTP_USERNAME="hotuankhanh20112016@gmail.com"
 
-read -rsp "Gmail App Password: " SMTP_PASSWORD
+read -rp "Gmail App Password: " SMTP_PASSWORD
 echo
 SMTP_PASSWORD="${SMTP_PASSWORD:?Set SMTP_PASSWORD before running}"
 
