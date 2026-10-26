@@ -6,12 +6,25 @@ resource "google_project" "project" {
   # deletion_policy = "DELETE"
 }
 
-resource "google_project_service" "network_api" {
+locals {
+  required_apis = [
+    "container.googleapis.com",
+    "compute.googleapis.com",
+    "cloudbuild.googleapis.com",
+    "sqladmin.googleapis.com",
+    "servicenetworking.googleapis.com"
+  ]
+}
+
+resource "google_project_service" "apis" {
+  for_each = toset(local.required_apis)
+
   project = google_project.project.id
-  service = "compute.googleapis.com"
+  service = each.value
 
   disable_on_destroy = false
   depends_on = [
     google_project.project
   ]
 }
+

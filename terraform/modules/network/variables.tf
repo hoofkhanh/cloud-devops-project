@@ -22,3 +22,6 @@ variable "network" {
 }
 
 
+variable "address_name" {
+  type = string
+}
