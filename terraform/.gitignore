@@ -1,6 +1,0 @@
-**/.terraform/*
-
-
-# Terraform state
-*.tfstate
-*.tfstate.*

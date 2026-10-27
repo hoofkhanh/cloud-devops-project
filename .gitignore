@@ -1,0 +1,8 @@
+helm/templates/secret.yaml
+helm/templates/secret-monitoring.yaml
+
+**/.terraform/
+
+# Terraform state
+*.tfstate
+*.tfstate.*
