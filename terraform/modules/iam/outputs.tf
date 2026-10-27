@@ -5,3 +5,4 @@ output "sa_cloud_build_runner" {
 output "node_service_account" {
   value = data.google_compute_default_service_account.default.email
 }
+

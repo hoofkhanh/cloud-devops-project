@@ -12,7 +12,7 @@ resource "google_sql_database_instance" "my_sql_instance" {
     }
   }
 
-  root_password = var.root_password
+  root_password       = var.root_password
   deletion_protection = false
 
 }

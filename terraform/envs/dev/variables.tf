@@ -57,3 +57,29 @@ variable "sql_user_password" {
   type      = string
   sensitive = true
 }
+
+variable "wif_github" {
+  type = object({
+    workload_identity_pool_id          = string
+    workload_identity_pool_provider_id = string
+    github_repository                  = string
+  })
+}
+
+variable "argocd" {
+  type = object({
+    argocd_chart_version = string
+  })
+}
+
+variable "monitoring_chart_version" {
+  type = string
+}
+
+variable "grafana_csrf_trusted_origins" {
+  type = string
+}
+
+variable "grafana_port" {
+  type = string
+}

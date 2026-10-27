@@ -1,8 +1,14 @@
+# Kubernetes / Helm secrets
+k8s/secret.yaml
 helm/templates/secret.yaml
 helm/templates/secret-monitoring.yaml
 
+# Terraform
 **/.terraform/
 
 # Terraform state
 *.tfstate
 *.tfstate.*
+
+# Terraform variables
+*.tfvars

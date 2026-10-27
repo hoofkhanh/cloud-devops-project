@@ -26,3 +26,10 @@ output "output_sql_user_name" {
   value = module.sql_instance.sql_user_name
 }
 
+output "output_argocd_name" {
+  value = module.argocd.argocd_name
+}
+
+output "output_monitoring_name" {
+  value = module.monitoring.monitoring_name
+}

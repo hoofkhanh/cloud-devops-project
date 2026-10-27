@@ -34,3 +34,37 @@ resource "google_service_account_iam_member" "workload_identity_user" {
 data "google_compute_default_service_account" "default" {
   project = var.project_id
 }
+
+resource "google_iam_workload_identity_pool" "github_pool" {
+  project                   = var.project_id
+  workload_identity_pool_id = var.workload_identity_pool_id
+  display_name              = "GitHub Actions Pool"
+}
+
+
+resource "google_iam_workload_identity_pool_provider" "github_provider" {
+  project                            = var.project_id
+  workload_identity_pool_provider_id = var.workload_identity_pool_provider_id
+  workload_identity_pool_id          = google_iam_workload_identity_pool.github_pool.workload_identity_pool_id
+  display_name                       = "GitHub Actions Provider"
+  attribute_mapping = {
+    "google.subject"       = "assertion.sub"
+    "attribute.repository" = "assertion.repository"
+  }
+
+  attribute_condition = "assertion.repository == '${var.github_repository}'"
+
+  oidc {
+    issuer_uri = "https://token.actions.githubusercontent.com"
+  }
+}
+
+data "google_project" "current" {
+  project_id = var.project_id
+}
+
+resource "google_service_account_iam_member" "github_cloud_build_runner" {
+  service_account_id = google_service_account.cloud_build_runner.id
+  member             = "principalSet://iam.googleapis.com/projects/${data.google_project.current.number}/locations/global/workloadIdentityPools/${var.workload_identity_pool_id}/attribute.repository/${var.github_repository}"
+  role               = "roles/iam.workloadIdentityUser"
+}

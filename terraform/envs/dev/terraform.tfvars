@@ -36,3 +36,15 @@ sql_databases = {
   database_version = "MYSQL_8_0"
   sql_user_name    = "khanh"
 }
+
+wif_github = {
+  workload_identity_pool_id          = "github-pool"
+  workload_identity_pool_provider_id = "github-provider"
+  github_repository                  = "hoofkhanh/cloud-devops-project"
+}
+
+argocd = {
+  argocd_chart_version = "10.10.5"
+}
+
+monitoring_chart_version = "92.13.0"

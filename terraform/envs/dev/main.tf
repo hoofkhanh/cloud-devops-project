@@ -19,11 +19,14 @@ module "gke" {
 module "iam" {
   source = "../../modules/iam"
 
-  project_id                    = var.gcp.project_id
-  account_id_cloud_build_runner = var.service_accounts.account_id_cloud_build_runner
-  sql_instance_name             = module.sql_instance.sql_database_name
-  namespace                     = var.gke.namespace
-  app_k8s_sa_name               = var.gke.app_k8s_sa_name
+  project_id                         = var.gcp.project_id
+  account_id_cloud_build_runner      = var.service_accounts.account_id_cloud_build_runner
+  sql_instance_name                  = module.sql_instance.sql_database_name
+  namespace                          = var.gke.namespace
+  app_k8s_sa_name                    = var.gke.app_k8s_sa_name
+  workload_identity_pool_id          = var.wif_github.workload_identity_pool_id
+  workload_identity_pool_provider_id = var.wif_github.workload_identity_pool_provider_id
+  github_repository                  = var.wif_github.github_repository
 }
 
 module "storage" {
@@ -58,4 +61,22 @@ module "sql_instance" {
   network_self_link = module.network.vpc_network.self_link
 
   depends_on = [module.network]
+}
+
+module "argocd" {
+  source = "../../modules/argocd"
+
+  argocd_chart_version = var.argocd.argocd_chart_version
+
+  depends_on = [module.gke]
+}
+
+module "monitoring" {
+  source = "../../modules/monitoring"
+
+  grafana_csrf_trusted_origins = var.grafana_csrf_trusted_origins
+  monitoring_chart_version     = var.monitoring_chart_version
+  grafana_port                 = var.grafana_port
+
+  depends_on = [module.gke]
 }

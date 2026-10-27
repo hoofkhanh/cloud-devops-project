@@ -3,7 +3,7 @@ resource "google_storage_bucket" "build_source" {
   name                        = "${var.project_id}-build-source"
   location                    = var.location
   uniform_bucket_level_access = true
-  force_destroy = true
+  force_destroy               = true
 }
 
 resource "google_storage_bucket_iam_member" "storage_admin" {

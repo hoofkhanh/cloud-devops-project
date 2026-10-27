@@ -18,3 +18,15 @@ variable "namespace" {
 variable "app_k8s_sa_name" {
   type = string
 }
+
+variable "workload_identity_pool_id" {
+  type = string
+}
+
+variable "workload_identity_pool_provider_id" {
+  type = string
+}
+
+variable "github_repository" {
+  type = string
+}
