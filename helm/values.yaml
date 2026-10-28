@@ -1,5 +1,8 @@
 namespace: my-ns
 
+GSA_EMAIL: "cloudsql-client"
+PROJECT_ID: "dev-devops-project-2026"
+
 configMap:
   MYSQL_DATABASE: "app"
   PROJECT_ID: "dev-devops-project-2026"
