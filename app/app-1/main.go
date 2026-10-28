@@ -115,6 +115,11 @@ func nameHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	err := godotenv.Load("/var/secrets/sql.txt")
+	if err != nil {
+        panic(err)
+    }
+	
 	host := os.Getenv("DB_HOST")
 	port := os.Getenv("DB_PORT")
 	user := os.Getenv("DB_USER")

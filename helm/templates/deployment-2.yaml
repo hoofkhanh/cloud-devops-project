@@ -33,16 +33,16 @@ spec:
                 configMapKeyRef:
                   name: app-config
                   key: MYSQL_DATABASE
-            - name: DB_USER
-              valueFrom:
-                secretKeyRef:
-                  name: app-secret
-                  key: MYSQL_USER
-            - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: app-secret
-                  key: MYSQL_PASSWORD
+            # - name: DB_USER
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: app-secret
+            #       key: MYSQL_USER
+            # - name: DB_PASSWORD
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: app-secret
+            #       key: MYSQL_PASSWORD
             - name: DB_PORT
               value: "3306"
           resources:

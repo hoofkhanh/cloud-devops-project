@@ -33,16 +33,16 @@ spec:
                 configMapKeyRef:
                   name: app-config
                   key: MYSQL_DATABASE
-            - name: DB_USER
-              valueFrom:
-                secretKeyRef:
-                  name: app-secret
-                  key: MYSQL_USER
-            - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: app-secret
-                  key: MYSQL_PASSWORD
+            # - name: DB_USER
+              # valueFrom:
+              #   secretKeyRef:
+              #     name: app-secret
+              #     key: MYSQL_USER
+            # - name: DB_PASSWORD
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: app-secret
+            #       key: MYSQL_PASSWORD
             - name: DB_PORT
               value: "3306"
           resources:
@@ -64,6 +64,10 @@ spec:
               port: 8080
             initialDelaySeconds: 60
             periodSeconds: 20
+          volumeMounts:
+            - name: sql-secrets-volume
+              mountPath: /var/secrets
+              readOnly: true
 
         # Cloud SQL Auth Proxy sidecar
         - name: cloud-sql-proxy
@@ -91,6 +95,16 @@ spec:
             - "--address=127.0.0.1"
             - "--port=3306"
             - "$(PROJECT_ID):us-central1:$(CLOUD_SQL_INSTANCE_NAME)"
+
+      volumes:
+        - name: sql-secrets-volume
+          csi:
+            driver: secrets-store-gke.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: {{ .Values.secretManager.secretProviderClassName }}
+
+
 # ---
 # this is a dummy db that simulate db locally
 # apiVersion: apps/v1
