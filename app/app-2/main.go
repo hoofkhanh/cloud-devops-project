@@ -127,6 +127,12 @@ func main() {
 	password := os.Getenv("DB_PASSWORD")
 	name := os.Getenv("DB_NAME")
 
+	fmt.Println("DB_HOST:", host)
+	fmt.Println("DB_PORT:", port)
+	fmt.Println("DB_USER set:", user != "")
+	fmt.Println("DB_PASSWORD set:", password != "")
+	fmt.Println("DB_NAME:", name)
+
 	dsn := fmt.Sprintf(
 		"%s:%s@tcp(%s:%s)/%s",
 		user,
