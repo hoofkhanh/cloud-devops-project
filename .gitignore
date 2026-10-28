@@ -10,5 +10,6 @@ helm/templates/secret-monitoring.yaml
 *.tfstate
 *.tfstate.*
 
-# Terraform variables
-*.tfvars
+# Secret files
+**/grafana.txt
+**/sql.txt

@@ -27,6 +27,7 @@ module "iam" {
   workload_identity_pool_id          = var.wif_github.workload_identity_pool_id
   workload_identity_pool_provider_id = var.wif_github.workload_identity_pool_provider_id
   github_repository                  = var.wif_github.github_repository
+  sql_secret_id = module.secret_manager.sql_secret_id
 }
 
 module "storage" {
@@ -55,9 +56,9 @@ module "sql_instance" {
   database_version  = var.sql_databases.database_version
   region            = var.gcp.region
   project_id        = var.gcp.project_id
-  root_password     = var.root_password
-  sql_user_name     = var.sql_databases.sql_user_name
-  sql_user_password = var.sql_user_password
+  root_password     = module.secret_manager.sql_secrets["sql"]["MYSQL_ROOT_PASSWORD"]
+  sql_user_name     = module.secret_manager.sql_secrets["sql"]["MYSQL_USER"]
+  sql_user_password = module.secret_manager.sql_secrets["sql"]["MYSQL_PASSWORD"]
   network_self_link = module.network.vpc_network.self_link
 
   depends_on = [module.network]
@@ -79,4 +80,11 @@ module "monitoring" {
   grafana_port                 = var.grafana_port
 
   depends_on = [module.gke]
+}
+
+module "secret_manager" {
+  source = "../../modules/secret-manager"
+
+  project_id = var.gcp.project_id
+  secret_ids = var.secret_ids
 }

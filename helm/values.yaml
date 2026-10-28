@@ -54,3 +54,9 @@ service:
   app-2:
     port: "80"
     targetPort: "8080"
+
+secretManager:
+  projectNumber: "1002087293119"
+  secretName: sql
+  secretVersion: "latest"
+  secretProviderClassName: sql-secrets

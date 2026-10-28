@@ -12,7 +12,8 @@ locals {
     "compute.googleapis.com",
     "cloudbuild.googleapis.com",
     "sqladmin.googleapis.com",
-    "servicenetworking.googleapis.com"
+    "servicenetworking.googleapis.com",
+    "secretmanager.googleapis.com"
   ]
 }
 

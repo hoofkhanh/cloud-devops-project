@@ -44,18 +44,7 @@ variable "sql_databases" {
   type = object({
     instance_name    = string
     database_version = string
-    sql_user_name    = string
   })
-}
-
-variable "root_password" {
-  type      = string
-  sensitive = true
-}
-
-variable "sql_user_password" {
-  type      = string
-  sensitive = true
 }
 
 variable "wif_github" {
@@ -82,4 +71,8 @@ variable "grafana_csrf_trusted_origins" {
 
 variable "grafana_port" {
   type = string
+}
+
+variable "secret_ids" {
+  type = set(string)
 }

@@ -9,14 +9,14 @@ resource "google_project_iam_member" "log_writer" {
   role    = "roles/logging.logWriter"
 }
 
-resource "google_service_account" "cloud_sql_client" {
+resource "google_service_account" "cloud_sql_sa" {
   project    = var.project_id
   account_id = "cloudsql-client"
 }
 
-resource "google_project_iam_member" "cloud_sql_client" {
+resource "google_project_iam_member" "cloud_sql_sa_cloud_sql_client" {
   project = var.project_id
-  member  = "serviceAccount:${google_service_account.cloud_sql_client.email}"
+  member  = "serviceAccount:${google_service_account.cloud_sql_sa.email}"
   role    = "roles/cloudsql.client"
   condition {
     expression  = "resource.name=='projects/${var.project_id}/instances/${var.sql_instance_name}' && resource.service == 'sqladmin.googleapis.com'"
@@ -25,8 +25,15 @@ resource "google_project_iam_member" "cloud_sql_client" {
   }
 }
 
+resource "google_secret_manager_secret_iam_member" "cloud_sql_sa_secret_accessor" {
+  project = var.project_id
+  member  = "serviceAccount:${google_service_account.cloud_sql_sa.email}"
+  role      = "roles/secretmanager.secretAccessor"
+  secret_id = var.sql_secret_id
+}
+
 resource "google_service_account_iam_member" "workload_identity_user" {
-  service_account_id = google_service_account.cloud_sql_client.id
+  service_account_id = google_service_account.cloud_sql_sa.id
   member             = "serviceAccount:${var.project_id}.svc.id.goog[${var.namespace}/${var.app_k8s_sa_name}]"
   role               = "roles/iam.workloadIdentityUser"
 }

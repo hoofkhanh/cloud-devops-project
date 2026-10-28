@@ -21,23 +21,23 @@ spec:
             - name: MYSQL_PORT
               value: "3306"
 
-            - name: MYSQL_USER
-              valueFrom:
-                secretKeyRef:
-                  name: app-secret
-                  key: MYSQL_USER
+            # - name: MYSQL_USER
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: app-secret
+            #       key: MYSQL_USER
 
-            - name: MYSQL_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: app-secret
-                  key: MYSQL_PASSWORD
+            # - name: MYSQL_PASSWORD
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: app-secret
+            #       key: MYSQL_PASSWORD
 
-            - name: MYSQL_ROOT_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: app-secret
-                  key: MYSQL_ROOT_PASSWORD
+            # - name: MYSQL_ROOT_PASSWORD
+            #   valueFrom:
+            #     secretKeyRef:
+            #       name: app-secret
+            #       key: MYSQL_ROOT_PASSWORD
 
             - name: MYSQL_DATABASE
               valueFrom:
@@ -49,6 +49,11 @@ spec:
             - /bin/sh
             - -c
             - |
+              set -eu
+              set -a
+              . /var/secrets/sql.txt
+              set +a
+
               mysql -h "$MYSQL_HOST" \
                     -P "$MYSQL_PORT" \
                     -u root \
@@ -74,6 +79,10 @@ spec:
                 WHERE name = 'Khanh'
               );
               EOF
+          volumeMounts:
+            - name: sql-secrets-volume
+              mountPath: /var/secrets
+              readOnly: true
 
         # Cloud SQL Auth Proxy sidecar
         - name: cloud-sql-proxy
@@ -101,3 +110,12 @@ spec:
             - "--address=127.0.0.1"
             - "--port=3306"
             - "$(PROJECT_ID):us-central1:$(CLOUD_SQL_INSTANCE_NAME)"
+
+      volumes:
+        - name: sql-secrets-volume
+          csi:
+            driver: secrets-store-gke.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: {{ .Values.secretManager.secretProviderClassName }}
+    

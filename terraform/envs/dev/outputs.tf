@@ -22,14 +22,14 @@ output "output_sql_database_name" {
   value = module.sql_instance.sql_database_name
 }
 
-output "output_sql_user_name" {
-  value = module.sql_instance.sql_user_name
-}
-
 output "output_argocd_name" {
   value = module.argocd.argocd_name
 }
 
 output "output_monitoring_name" {
   value = module.monitoring.monitoring_name
+}
+
+output "output_secret_manager" {
+  value = module.secret_manager.secrets
 }

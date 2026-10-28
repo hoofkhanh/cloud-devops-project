@@ -30,3 +30,7 @@ variable "workload_identity_pool_provider_id" {
 variable "github_repository" {
   type = string
 }
+
+variable "sql_secret_id" {
+  type = string
+}

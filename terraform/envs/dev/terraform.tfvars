@@ -34,12 +34,11 @@ artifact_registry = {
 sql_databases = {
   instance_name    = "my-sql-instance"
   database_version = "MYSQL_8_0"
-  sql_user_name    = "khanh"
 }
 
 wif_github = {
-  workload_identity_pool_id          = "github-pool"
-  workload_identity_pool_provider_id = "github-provider"
+  workload_identity_pool_id          = "github-pool1"
+  workload_identity_pool_provider_id = "github-provider1"
   github_repository                  = "hoofkhanh/cloud-devops-project"
 }
 
@@ -48,3 +47,8 @@ argocd = {
 }
 
 monitoring_chart_version = "92.13.0"
+
+secret_ids = [
+  "sql",
+  "grafana",
+]
