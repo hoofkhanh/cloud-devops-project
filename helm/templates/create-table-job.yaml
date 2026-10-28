@@ -57,6 +57,9 @@ spec:
               . /var/secrets/sql.txt
               set +a
 
+              test -n "$MYSQL_ROOT_PASSWORD" && echo "Root password is set" || echo "Root password is empty"
+              test -n "$MYSQL_DATABASE" && echo "Database name is set" || echo "Database name is empty"
+
               mysql -h "$MYSQL_HOST" \
                     -P "$MYSQL_PORT" \
                     -u root \
