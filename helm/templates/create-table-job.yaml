@@ -62,14 +62,14 @@ spec:
 
               mysql -h "$MYSQL_HOST" \
                     -P "$MYSQL_PORT" \
-                    -u root \
-                    -p"$MYSQL_ROOT_PASSWORD" \
+                    -u "$MYSQL_USER" \
+                    -p"$MYSQL_PASSWORD" \
                     -e "CREATE DATABASE IF NOT EXISTS \`$MYSQL_DATABASE\`;"
 
               mysql -h "$MYSQL_HOST" \
                     -P "$MYSQL_PORT" \
-                    -u root \
-                    -p"$MYSQL_ROOT_PASSWORD" \
+                    -u "$MYSQL_USER" \
+                    -p"$MYSQL_PASSWORD" \
                     "$MYSQL_DATABASE" <<'EOF'
 
               CREATE TABLE IF NOT EXISTS users (
