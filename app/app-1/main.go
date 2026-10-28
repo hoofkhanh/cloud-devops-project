@@ -12,6 +12,7 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 
+	"github.com/joho/godotenv"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
@@ -115,9 +116,9 @@ func nameHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	err := godotenv.Load("/var/secrets/sql.txt")
-	if err != nil {
-        panic(err)
+	err_load := godotenv.Load("/var/secrets/sql.txt")
+	if err_load != nil {
+        panic(err_load)
     }
 	
 	host := os.Getenv("DB_HOST")

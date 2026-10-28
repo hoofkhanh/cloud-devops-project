@@ -2,7 +2,7 @@ namespace: my-ns
 
 configMap:
   MYSQL_DATABASE: "app"
-  PROJECT_ID: "devops-project-510903"
+  PROJECT_ID: "dev-devops-project-2026"
   CLOUD_SQL_INSTANCE_NAME: "my-sql-instance"
 
 serviceAccount: "app-ksa"
@@ -21,7 +21,7 @@ containers:
     limits-memory: "40Mi"
   
   app-1:
-    image: "us-central1-docker.pkg.dev/devops-project-510903/my-repo/app"
+    image: "us-central1-docker.pkg.dev/dev-devops-project-2026/my-repo/app"
     version: "v1.2"
     requests-cpu: "10m"
     limits-cpu: "20m"
@@ -31,7 +31,7 @@ containers:
     replicas: "2"
 
   app-2:
-    image: "us-central1-docker.pkg.dev/devops-project-510903/my-repo/app"
+    image: "us-central1-docker.pkg.dev/dev-devops-project-2026/my-repo/app"
     version: "v2.2"
     requests-cpu: "10m"
     limits-cpu: "20m"

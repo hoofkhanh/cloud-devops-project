@@ -4,6 +4,7 @@ go 1.26.0
 
 require (
 	github.com/go-sql-driver/mysql v1.10.1
+	github.com/joho/godotenv v1.5.1
 	github.com/prometheus/client_golang v1.25.0
 )
 
