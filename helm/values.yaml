@@ -4,7 +4,7 @@ GSA_EMAIL: "cloudsql-client"
 PROJECT_ID: "dev-devops-project-2026"
 
 configMap:
-  MYSQL_DATABASE: "app"
+  MYSQL_DATABASE: "users"
   PROJECT_ID: "dev-devops-project-2026"
   CLOUD_SQL_INSTANCE_NAME: "my-sql-instance"
 

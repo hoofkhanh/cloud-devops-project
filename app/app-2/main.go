@@ -118,8 +118,9 @@ func nameHandler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	err_load := godotenv.Load("/var/secrets/sql.txt")
 	if err_load != nil {
-        panic(err_load)
-    }
+		log.Printf("Failed to load secret file: %v", err_load)
+		panic(err_load)
+	}
 
 	host := os.Getenv("DB_HOST")
 	port := os.Getenv("DB_PORT")
@@ -129,8 +130,8 @@ func main() {
 
 	fmt.Println("DB_HOST:", host)
 	fmt.Println("DB_PORT:", port)
-	fmt.Println("MYSQL_USER set:", user != "")
-	fmt.Println("MYSQL_PASSWORD set:", password != "")
+	fmt.Println("MYSQL_USER set:", user)
+	fmt.Println("MYSQL_PASSWORD set:", password)
 	fmt.Println("DB_NAME:", name)
 
 	dsn := fmt.Sprintf(
