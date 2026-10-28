@@ -5,6 +5,9 @@ metadata:
   namespace: {{ .Values.namespace }}
   labels:
     {{- include "myapp.labels" . | nindent 4 }}
+  annotations:
+    argocd.argoproj.io/hook: PreSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation,HookSucceeded
 spec:
   template:
     spec:
@@ -84,8 +87,10 @@ spec:
               mountPath: /var/secrets
               readOnly: true
 
+      initContainers:
         # Cloud SQL Auth Proxy sidecar
         - name: cloud-sql-proxy
+          restartPolicy: Always
           image: "{{ index .Values.containers "cloud-sql-proxy" "image" }}:{{ index .Values.containers "cloud-sql-proxy" "version" }}"
           env:
             - name: PROJECT_ID
