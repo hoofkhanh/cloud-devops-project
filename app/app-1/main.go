@@ -121,13 +121,13 @@ func main() {
 		log.Printf("Failed to load secret file: %v", err_load)
 		panic(err_load)
 	}
-	
+
 	host := os.Getenv("DB_HOST")
 	port := os.Getenv("DB_PORT")
 	user := os.Getenv("MYSQL_USER")
 	password := os.Getenv("MYSQL_PASSWORD")
 	name := os.Getenv("DB_NAME")
-	
+
 	fmt.Println("DB_HOST:", host)
 	fmt.Println("DB_PORT:", port)
 	fmt.Println("MYSQL_USER set:", user)

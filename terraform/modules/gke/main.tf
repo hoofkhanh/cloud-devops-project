@@ -3,7 +3,7 @@ resource "google_container_cluster" "my_cluster" {
   location           = var.zone
   network            = var.network.network_name
   subnetwork         = var.network.subnet_name
-  initial_node_count = 1
+  initial_node_count = 2
   project            = var.project_id
 
   ip_allocation_policy {
