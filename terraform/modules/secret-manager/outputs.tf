@@ -10,6 +10,13 @@ output "sql_secrets" {
   sensitive = true
 }
 
+output "secrets" {
+  value = {
+    for key, secret in data.google_secret_manager_secret_version.sql_secrets :
+    key => secret.secret
+  }
+}
+
 output "sql_secret_id" {
   value = google_secret_manager_secret.secrets["sql"].secret_id
 }

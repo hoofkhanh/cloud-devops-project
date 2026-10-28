@@ -20,6 +20,10 @@ resource "google_container_cluster" "my_cluster" {
   gateway_api_config {
     channel = "CHANNEL_STANDARD"
   }
+
+  secret_manager_config {
+    enabled = true
+  }
 }
 
 resource "google_container_node_pool" "default_pool" {

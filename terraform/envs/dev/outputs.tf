@@ -32,4 +32,5 @@ output "output_monitoring_name" {
 
 output "output_secret_manager" {
   value = module.secret_manager.secrets
+  sensitive = true
 }
