@@ -30,7 +30,12 @@ output "output_monitoring_name" {
   value = module.monitoring.monitoring_name
 }
 
-output "output_secret_manager" {
-  value = module.secret_manager.secrets
+output "output_sql_secret_manager" {
+  value     = module.secret_manager.secrets["sql"]
+  sensitive = true
+}
+
+output "output_grafana_secret_manager" {
+  value     = module.secret_manager.secrets["grafana"]
   sensitive = true
 }

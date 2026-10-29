@@ -26,8 +26,8 @@ resource "google_project_iam_member" "cloud_sql_sa_cloud_sql_client" {
 }
 
 resource "google_secret_manager_secret_iam_member" "cloud_sql_sa_secret_accessor" {
-  project = var.project_id
-  member  = "serviceAccount:${google_service_account.cloud_sql_sa.email}"
+  project   = var.project_id
+  member    = "serviceAccount:${google_service_account.cloud_sql_sa.email}"
   role      = "roles/secretmanager.secretAccessor"
   secret_id = var.sql_secret_id
 }

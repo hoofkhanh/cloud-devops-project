@@ -23,14 +23,3 @@ data "google_secret_manager_secret_version" "secrets" {
   secret  = each.value.secret
   version = each.value.version
 }
-
-data "google_secret_manager_secret_version" "sql_secrets" {
-  for_each = {
-    for key, secret in google_secret_manager_secret_version.version_configuration :
-    key => secret
-    if key == "sql"
-  }
-
-  secret  = each.value.secret
-  version = each.value.version
-}

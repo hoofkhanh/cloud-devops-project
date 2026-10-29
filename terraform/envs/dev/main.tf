@@ -27,7 +27,7 @@ module "iam" {
   workload_identity_pool_id          = var.wif_github.workload_identity_pool_id
   workload_identity_pool_provider_id = var.wif_github.workload_identity_pool_provider_id
   github_repository                  = var.wif_github.github_repository
-  sql_secret_id = module.secret_manager.sql_secret_id
+  sql_secret_id                      = module.secret_manager.sql_secret_id
 }
 
 module "storage" {
@@ -56,9 +56,9 @@ module "sql_instance" {
   database_version  = var.sql_databases.database_version
   region            = var.gcp.region
   project_id        = var.gcp.project_id
-  root_password     = module.secret_manager.sql_secrets["sql"]["MYSQL_ROOT_PASSWORD"]
-  sql_user_name     = module.secret_manager.sql_secrets["sql"]["MYSQL_USER"]
-  sql_user_password = module.secret_manager.sql_secrets["sql"]["MYSQL_PASSWORD"]
+  root_password     = module.secret_manager.secrets_data["sql"]["MYSQL_ROOT_PASSWORD"]
+  sql_user_name     = module.secret_manager.secrets_data["sql"]["MYSQL_USER"]
+  sql_user_password = module.secret_manager.secrets_data["sql"]["MYSQL_PASSWORD"]
   network_self_link = module.network.vpc_network.self_link
 
   depends_on = [module.network]
@@ -78,6 +78,8 @@ module "monitoring" {
   grafana_csrf_trusted_origins = var.grafana_csrf_trusted_origins
   monitoring_chart_version     = var.monitoring_chart_version
   grafana_port                 = var.grafana_port
+  smtp_username                = module.secret_manager.secrets_data["grafana"]["smtp-username"]
+  smtp_password                = module.secret_manager.secrets_data["grafana"]["smtp-password"]
 
   depends_on = [module.gke]
 }

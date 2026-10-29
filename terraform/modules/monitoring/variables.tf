@@ -9,3 +9,11 @@ variable "monitoring_chart_version" {
 variable "grafana_port" {
   type = string
 }
+
+variable "smtp_username" {
+  type = string
+}
+
+variable "smtp_password" {
+  type = string
+}
