@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1020" viewBox="0 0 1200 1020" role="img" aria-labelledby="title desc">
+  <title id="title">GKE application runtime, federation, database, and monitoring</title>
+  <desc id="desc">Users enter through a GKE Gateway and weighted HTTPRoute and reach two Go app deployments. Secret Manager CSI uses the federated Kubernetes service account principal. The Cloud SQL Auth Proxy uses KSA-to-GSA Workload Identity to reach private MySQL. Prometheus, Grafana, and Alertmanager provide monitoring.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" fill="#52708f"/></marker>
+    <marker id="identity-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" fill="#8b76c7"/></marker>
+    <marker id="mount-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" fill="#5b9eaa"/></marker>
+    <marker id="metrics-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" fill="#54a477"/></marker>
+    <style>
+      text{font-family:Inter,Arial,sans-serif;fill:#172b4d}.title{font-size:30px;font-weight:700}.subtitle{font-size:16px;fill:#53677f}.section{font-size:19px;font-weight:700}.label{font-size:17px;font-weight:700}.body{font-size:15px;fill:#53677f}.note{font-size:13px;fill:#53677f}.box{stroke-width:2;rx:14}.flow{fill:none;stroke:#52708f;stroke-width:2.5;marker-end:url(#arrow)}.identity{fill:none;stroke:#8b76c7;stroke-width:2.5;stroke-dasharray:7 6;marker-end:url(#identity-arrow)}.mount{fill:none;stroke:#5b9eaa;stroke-width:2;stroke-dasharray:7 6;marker-end:url(#mount-arrow)}.metrics{fill:none;stroke:#54a477;stroke-width:2;stroke-dasharray:7 6;marker-end:url(#metrics-arrow)}
+    </style>
+  </defs>
+  <rect width="1200" height="1020" rx="20" fill="#f5f8fc"/>
+  <text x="40" y="52" class="title">GKE runtime · traffic, identity, data, monitoring</text>
+  <text x="40" y="82" class="subtitle">Secret Manager CSI and Cloud SQL Proxy use different KSA identity paths</text>
+
+  <rect x="190" y="110" width="780" height="850" class="box" fill="#fafdff" stroke="#86a3c2" stroke-dasharray="8 6"/>
+  <text x="215" y="141" class="label">GKE · my-cluster · namespace my-ns · monitoring namespace</text>
+
+  <rect x="25" y="205" width="130" height="100" class="box" fill="#fff" stroke="#8aa0b8"/>
+  <text x="90" y="246" text-anchor="middle" class="label">User</text>
+  <text x="90" y="276" text-anchor="middle" class="body">HTTP :80</text>
+
+  <rect x="215" y="175" width="165" height="110" class="box" fill="#e8f1ff" stroke="#4b83c3"/>
+  <text x="297" y="215" text-anchor="middle" class="label">Gateway</text>
+  <text x="297" y="246" text-anchor="middle" class="body">external · HTTP :80</text>
+  <text x="297" y="270" text-anchor="middle" class="note">GKE load balancer</text>
+
+  <rect x="420" y="165" width="190" height="130" class="box" fill="#fff5e8" stroke="#d99b42"/>
+  <text x="515" y="205" text-anchor="middle" class="label">HTTPRoute</text>
+  <text x="515" y="240" text-anchor="middle" class="body">80% → app-1</text>
+  <text x="515" y="269" text-anchor="middle" class="body">20% → app-2</text>
+
+  <rect x="650" y="145" width="280" height="145" class="box" fill="#edf8f1" stroke="#54a477"/>
+  <text x="790" y="179" text-anchor="middle" class="label">app-1 · 2 replicas</text>
+  <text x="790" y="209" text-anchor="middle" class="body">Service → Go Pods · :8080</text>
+  <text x="790" y="239" text-anchor="middle" class="body">Cloud SQL Proxy sidecar</text>
+  <text x="790" y="268" text-anchor="middle" class="note">/api/name · /metrics</text>
+
+  <rect x="650" y="325" width="280" height="145" class="box" fill="#fff5e8" stroke="#d99b42"/>
+  <text x="790" y="359" text-anchor="middle" class="label">app-2 · 2 replicas</text>
+  <text x="790" y="389" text-anchor="middle" class="body">Service → Go Pods · :8080</text>
+  <text x="790" y="419" text-anchor="middle" class="body">Cloud SQL Proxy sidecar</text>
+  <text x="790" y="448" text-anchor="middle" class="note">/api/name · /metrics</text>
+
+  <rect x="995" y="225" width="185" height="155" class="box" fill="#f0edff" stroke="#8b76c7"/>
+  <text x="1087" y="262" text-anchor="middle" class="label">Cloud SQL</text>
+  <text x="1087" y="294" text-anchor="middle" class="body">MySQL 8.0</text>
+  <text x="1087" y="323" text-anchor="middle" class="body">private IP · no public IP</text>
+  <text x="1087" y="354" text-anchor="middle" class="note">database app · table users</text>
+
+  <path d="M155 255H211" class="flow"/><path d="M380 230H416" class="flow"/>
+  <path d="M610 210 C628 210 630 217 646 217" class="flow"/><path d="M610 250 C630 250 630 397 646 397" class="flow"/>
+  <path d="M930 215 C958 215 965 270 991 270" class="flow"/><path d="M930 395 C965 395 965 337 991 337" class="flow"/>
+
+  <rect x="25" y="520" width="165" height="112" class="box" fill="#fff5e8" stroke="#d99b42"/>
+  <text x="107" y="560" text-anchor="middle" class="label">Secret Manager</text>
+  <text x="107" y="590" text-anchor="middle" class="body">secret: sql</text>
+  <text x="107" y="615" text-anchor="middle" class="note">credential source</text>
+
+  <rect x="215" y="500" width="220" height="145" class="box" fill="#fff" stroke="#5b9eaa"/>
+  <text x="325" y="538" text-anchor="middle" class="label">GKE Secret Manager CSI</text>
+  <text x="325" y="572" text-anchor="middle" class="body">SecretProviderClass</text>
+  <text x="325" y="603" text-anchor="middle" class="body">mounts sql.txt</text>
+  <text x="325" y="628" text-anchor="middle" class="note">/var/secrets/sql.txt</text>
+
+  <rect x="460" y="490" width="310" height="165" class="box" fill="#f0edff" stroke="#8b76c7"/>
+  <text x="615" y="525" text-anchor="middle" class="label">GKE federation · Workload Identity</text>
+  <text x="615" y="555" text-anchor="middle" class="body">2 · CSI: KSA principal → Secret Manager</text>
+  <text x="615" y="583" text-anchor="middle" class="note">secretAccessor(sql) → mounted file</text>
+  <text x="615" y="610" text-anchor="middle" class="body">3 · Proxy: app-ksa → GSA</text>
+  <text x="615" y="637" text-anchor="middle" class="note">cloudsql-client · roles/cloudsql.client</text>
+
+  <rect x="795" y="510" width="165" height="125" class="box" fill="#fff" stroke="#8aa0b8"/>
+  <text x="877" y="550" text-anchor="middle" class="label">mysql-init Job</text>
+  <text x="877" y="581" text-anchor="middle" class="body">proxy + CSI secret</text>
+  <text x="877" y="610" text-anchor="middle" class="note">creates app.users</text>
+
+  <path d="M190 575H211" class="flow"/>
+  <path d="M460 570H439" class="identity"/>
+  <text x="449" y="550" text-anchor="middle" class="note">KSA identity</text>
+  <path d="M325 500 C325 470 650 475 690 292" class="mount"/>
+  <path d="M350 500 C380 460 700 490 715 470" class="mount"/>
+  <text x="455" y="474" text-anchor="middle" class="note">CSI file mount to Pods</text>
+  <path d="M615 490 C625 455 690 450 720 290" class="identity"/>
+  <path d="M650 490 C675 465 720 475 740 470" class="identity"/>
+  <path d="M770 575H791" class="flow"/>
+  <path d="M960 570 C980 570 980 380 1035 380" class="flow"/>
+
+  <text x="215" y="710" class="section">METRICS AND ALERTING</text>
+  <rect x="215" y="735" width="180" height="105" class="box" fill="#fff" stroke="#5b9eaa"/>
+  <text x="305" y="773" text-anchor="middle" class="label">ServiceMonitor</text>
+  <text x="305" y="806" text-anchor="middle" class="body">/metrics · every 15s</text>
+
+  <rect x="430" y="735" width="180" height="105" class="box" fill="#e8f1ff" stroke="#4b83c3"/>
+  <text x="520" y="773" text-anchor="middle" class="label">Prometheus</text>
+  <text x="520" y="806" text-anchor="middle" class="body">scrapes app metrics</text>
+
+  <rect x="645" y="735" width="200" height="105" class="box" fill="#fff5e8" stroke="#d99b42"/>
+  <text x="745" y="773" text-anchor="middle" class="label">Grafana</text>
+  <text x="745" y="806" text-anchor="middle" class="body">11-panel dashboard</text>
+  <text x="745" y="829" text-anchor="middle" class="note">Terraform ConfigMap</text>
+
+  <rect x="430" y="870" width="180" height="70" class="box" fill="#f0edff" stroke="#8b76c7"/>
+  <text x="520" y="900" text-anchor="middle" class="label">PrometheusRule</text>
+  <text x="520" y="925" text-anchor="middle" class="note">target down · 1m</text>
+
+  <rect x="645" y="870" width="200" height="70" class="box" fill="#fff1f0" stroke="#cf625e"/>
+  <text x="745" y="900" text-anchor="middle" class="label">Alertmanager</text>
+  <text x="745" y="925" text-anchor="middle" class="note">SMTP email</text>
+
+  <rect x="995" y="870" width="185" height="70" class="box" fill="#fff" stroke="#8aa0b8"/>
+  <text x="1087" y="900" text-anchor="middle" class="label">Email alert</text>
+  <text x="1087" y="925" text-anchor="middle" class="note">resolved alerts too</text>
+
+  <path d="M395 787H426" class="flow"/><path d="M610 787H641" class="flow"/>
+  <path d="M520 840V866" class="flow"/><path d="M610 905H641" class="flow"/><path d="M845 905H991" class="flow"/>
+  <path d="M790 470 C790 635 305 650 305 731" class="metrics"/>
+  <text x="495" y="678" text-anchor="middle" class="note">app metrics</text>
+  <path d="M215 985H260" class="identity"/><text x="270" y="990" class="note">federation / identity</text>
+  <path d="M460 985H505" class="mount"/><text x="515" y="990" class="note">CSI secret mount</text>
+  <path d="M680 985H725" class="metrics"/><text x="735" y="990" class="note">metrics scrape</text>
+</svg>

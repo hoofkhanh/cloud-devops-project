@@ -3,7 +3,7 @@ resource "google_project" "project" {
   project_id      = var.project_id
   billing_account = var.billing_account_id
   org_id          = var.org_id
-  # deletion_policy = "DELETE"
+  deletion_policy = "DELETE"
 }
 
 locals {

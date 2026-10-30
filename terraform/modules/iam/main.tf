@@ -25,9 +25,9 @@ resource "google_project_iam_member" "cloud_sql_sa_cloud_sql_client" {
   }
 }
 
-resource "google_secret_manager_secret_iam_member" "cloud_sql_sa_secret_accessor" {
+resource "google_secret_manager_secret_iam_member" "app_ksa_secret_accessor" {
   project   = var.project_id
-  member    = "serviceAccount:${google_service_account.cloud_sql_sa.email}"
+  member    = "principal://iam.googleapis.com/projects/${data.google_project.current.number}/locations/global/workloadIdentityPools/${var.project_id}.svc.id.goog/subject/ns/${var.namespace}/sa/${var.app_k8s_sa_name}"
   role      = "roles/secretmanager.secretAccessor"
   secret_id = var.sql_secret_id
 }

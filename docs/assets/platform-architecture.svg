@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="920" viewBox="0 0 1200 920" role="img" aria-labelledby="title desc">
+  <title id="title">CI, GitOps, Terraform, and Google Cloud architecture</title>
+  <desc id="desc">GitHub Actions validates and scans Go apps, authenticates through GitHub OIDC federation, and publishes images to Artifact Registry. Argo CD separately syncs Helm to GKE. Terraform provisions Google Cloud and stores state in GCS. CI image references do not match Helm.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" fill="#52708f"/></marker>
+    <style>
+      text{font-family:Inter,Arial,sans-serif;fill:#172b4d}.title{font-size:30px;font-weight:700}.subtitle{font-size:16px;fill:#53677f}.section{font-size:19px;font-weight:700}.label{font-size:18px;font-weight:700}.body{font-size:15px;fill:#53677f}.note{font-size:14px;fill:#53677f}.box{stroke-width:2;rx:14}.flow{fill:none;stroke:#52708f;stroke-width:2.5;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="1200" height="920" rx="20" fill="#f5f8fc"/>
+  <text x="40" y="52" class="title">Cloud DevOps · delivery, identity, infrastructure, state</text>
+  <text x="40" y="82" class="subtitle">Current repository architecture · project and image drift between CI and Helm is highlighted</text>
+
+  <text x="40" y="125" class="section">1 · CI AND IMAGE PUBLISHING</text>
+  <rect x="35" y="145" width="220" height="180" class="box" fill="#fff" stroke="#8aa0b8"/>
+  <text x="145" y="183" text-anchor="middle" class="label">Developer / GitHub</text>
+  <text x="145" y="218" text-anchor="middle" class="body">push · pull request</text>
+  <text x="145" y="249" text-anchor="middle" class="note">workflow_dispatch</text>
+  <text x="145" y="290" text-anchor="middle" class="note">.github/workflows/ci.yaml</text>
+
+  <rect x="285" y="145" width="260" height="180" class="box" fill="#e8f1ff" stroke="#4b83c3"/>
+  <text x="415" y="183" text-anchor="middle" class="label">GitHub Actions</text>
+  <text x="415" y="218" text-anchor="middle" class="body">Go checks · Helm lint</text>
+  <text x="415" y="249" text-anchor="middle" class="body">SonarQube · Docker · Trivy</text>
+  <text x="415" y="290" text-anchor="middle" class="note">publish changed apps on master</text>
+
+  <rect x="575" y="145" width="260" height="180" class="box" fill="#f0edff" stroke="#8b76c7"/>
+  <text x="705" y="183" text-anchor="middle" class="label">1 · GitHub OIDC federation</text>
+  <text x="705" y="218" text-anchor="middle" class="body">Terraform: github-pool4 / provider4</text>
+  <text x="705" y="249" text-anchor="middle" class="body">workflow selects via repo variables</text>
+  <text x="705" y="282" text-anchor="middle" class="label">cloud-build-runner GSA</text>
+  <text x="705" y="307" text-anchor="middle" class="note">Artifact Registry writer · keyless</text>
+
+  <rect x="865" y="145" width="300" height="180" class="box" fill="#fff5e8" stroke="#d99b42"/>
+  <text x="1015" y="183" text-anchor="middle" class="label">Artifact Registry · my-repo</text>
+  <text x="1015" y="218" text-anchor="middle" class="body">project: devops-project-510903</text>
+  <text x="1015" y="249" text-anchor="middle" class="body">app-1:v1.5 · app-2:v2.5</text>
+  <text x="1015" y="290" text-anchor="middle" class="note">CI image destination</text>
+
+  <path d="M255 235H281" class="flow"/><path d="M545 235H571" class="flow"/><path d="M835 235H861" class="flow"/>
+
+  <rect x="35" y="350" width="1130" height="88" class="box" fill="#fff1f0" stroke="#cf625e"/>
+  <text x="600" y="385" text-anchor="middle" class="label" fill="#9e3330">Image handoff mismatch</text>
+  <text x="600" y="414" text-anchor="middle" class="body">Tags match (v1.5/v2.5), but CI targets devops-project-510903/my-repo/app-1 and app-2; Helm uses dev-devops-project-2026/my-repo/app.</text>
+
+  <text x="40" y="482" class="section">2 · GITOPS DEPLOYMENT</text>
+  <rect x="35" y="502" width="260" height="130" class="box" fill="#fff" stroke="#8aa0b8"/>
+  <text x="165" y="540" text-anchor="middle" class="label">GitHub Helm source</text>
+  <text x="165" y="572" text-anchor="middle" class="body">argocd/argocd-helm.yaml</text>
+  <text x="165" y="604" text-anchor="middle" class="note">path: helm/ · revision: HEAD</text>
+
+  <rect x="340" y="502" width="260" height="130" class="box" fill="#e8f1ff" stroke="#4b83c3"/>
+  <text x="470" y="540" text-anchor="middle" class="label">Argo CD</text>
+  <text x="470" y="572" text-anchor="middle" class="body">auto-sync · self-heal · prune</text>
+  <text x="470" y="604" text-anchor="middle" class="note">controller installed by Terraform</text>
+
+  <rect x="645" y="502" width="520" height="130" class="box" fill="#edf8f1" stroke="#54a477"/>
+  <text x="905" y="540" text-anchor="middle" class="label">GKE · namespace my-ns</text>
+  <text x="905" y="572" text-anchor="middle" class="body">Helm: app Deployments, Gateway, CSI secret mount, init Job</text>
+  <text x="905" y="604" text-anchor="middle" class="note">Argo CD Application must be applied separately</text>
+
+  <path d="M295 567H336" class="flow"/><path d="M600 567H641" class="flow"/>
+
+  <text x="40" y="688" class="section">3 · TERRAFORM AND REMOTE STATE</text>
+  <rect x="35" y="710" width="240" height="150" class="box" fill="#e8f1ff" stroke="#4b83c3"/>
+  <text x="155" y="750" text-anchor="middle" class="label">Terraform roots</text>
+  <text x="155" y="785" text-anchor="middle" class="body">bootstrap · envs/dev</text>
+  <text x="155" y="823" text-anchor="middle" class="note">separate state prefixes</text>
+
+  <rect x="315" y="710" width="540" height="150" class="box" fill="#fff" stroke="#7b96b3"/>
+  <text x="585" y="750" text-anchor="middle" class="label">Google Cloud resources</text>
+  <text x="585" y="785" text-anchor="middle" class="body">VPC · GKE · IAM/WIF · private Cloud SQL · Secret Manager</text>
+  <text x="585" y="823" text-anchor="middle" class="note">Artifact Registry · build storage · Argo CD · Prometheus/Grafana</text>
+
+  <rect x="895" y="710" width="270" height="150" class="box" fill="#fff5e8" stroke="#d99b42"/>
+  <text x="1030" y="750" text-anchor="middle" class="label">Terraform state · GCS</text>
+  <text x="1030" y="785" text-anchor="middle" class="body">versioned state bucket</text>
+  <text x="1030" y="823" text-anchor="middle" class="note">bootstrap · envs/dev prefixes</text>
+
+  <path d="M275 785H311" class="flow"/><path d="M855 785H891" class="flow"/>
+  <text x="40" y="895" class="note">Alternate: create-all-cloud.sh uses gcloud + Cloud Build and installs Helm directly. Jenkins is not configured.</text>
+</svg>

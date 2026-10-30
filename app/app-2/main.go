@@ -130,8 +130,8 @@ func main() {
 
 	fmt.Println("DB_HOST:", host)
 	fmt.Println("DB_PORT:", port)
-	fmt.Println("MYSQL_USER set:", user)
-	fmt.Println("MYSQL_PASSWORD set:", password)
+	fmt.Println("MYSQL_USER configured:", user != "")
+	fmt.Println("MYSQL_PASSWORD configured:", password != "")
 	fmt.Println("DB_NAME:", name)
 
 	dsn := fmt.Sprintf(

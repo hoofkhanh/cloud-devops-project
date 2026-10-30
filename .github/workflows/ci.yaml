@@ -17,7 +17,7 @@ concurrency:
 env:
   GAR_LOCATION: us-central1
   GAR_REPOSITORY: my-repo
-  PROJECT_ID: "devops-project-510903"
+  PROJECT_ID: "dev-devops-project-2026"
 
 jobs:
   changes:
@@ -270,9 +270,9 @@ jobs:
       matrix:
         include:
           - app: app-1
-            version: v1
+            version: v1.5
           - app: app-2
-            version: v2
+            version: v2.5
 
     permissions:
       contents: read
