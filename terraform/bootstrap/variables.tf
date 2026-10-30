@@ -17,3 +17,7 @@ variable "region" {
 variable "org_id" {
   type = string
 }
+
+variable "bucket_name" {
+  type = string
+}

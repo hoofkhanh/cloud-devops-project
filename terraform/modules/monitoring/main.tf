@@ -16,10 +16,23 @@ resource "helm_release" "monitoring" {
   ]
 
   values = [
-    file("${path.module}/../../../helm/monitoring-values.yaml")
+    file("${path.module}/../../../helm/monitoring-values.yaml"),
+
+    yamlencode({
+      grafana = {
+        sidecar = {
+          dashboards = {
+            enabled         = true
+            label           = "grafana_dashboard"
+            labelValue      = "hoofkhanh"
+            searchNamespace = "ALL"
+          }
+        }
+      }
+    })
   ]
 
-  depends_on = [kubernetes_secret_v1.alertmanager_smtp]
+  depends_on = [kubernetes_secret_v1.alertmanager_smtp, kubernetes_config_map_v1.grafana_dashboard]
 }
 
 resource "kubernetes_secret_v1" "alertmanager_smtp" {
@@ -39,5 +52,20 @@ resource "kubernetes_secret_v1" "alertmanager_smtp" {
 resource "kubernetes_namespace_v1" "monitoring_ns" {
   metadata {
     name = "monitoring"
+  }
+}
+
+resource "kubernetes_config_map_v1" "grafana_dashboard" {
+  metadata {
+    name      = "metrics-dashboard"
+    namespace = "monitoring"
+
+    labels = {
+      grafana_dashboard = "hoofkhanh"
+    }
+  }
+
+  data = {
+    "golden-signals.json" = file("${path.module}/dashboards/golden-signals.json")
   }
 }

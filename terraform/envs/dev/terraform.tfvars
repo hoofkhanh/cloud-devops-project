@@ -37,8 +37,8 @@ sql_databases = {
 }
 
 wif_github = {
-  workload_identity_pool_id          = "github-pool3"
-  workload_identity_pool_provider_id = "github-provider3"
+  workload_identity_pool_id          = "github-pool4"
+  workload_identity_pool_provider_id = "github-provider4"
   github_repository                  = "hoofkhanh/cloud-devops-project"
 }
 
